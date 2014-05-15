@@ -5,13 +5,24 @@ using System.Text;
 
 namespace BoardGameCore
 {
+    /// <summary>
+    /// This class implements a simple strategy for the TicTacToe board game.
+    /// </summary>
     public class TicTacToeSimpleStrategy : TicTacToeStrategy
     {
+        // The game board internal representation.
         protected TicTacToeBoard board;
+        // The turn: -1 this strategy move first, 1 otherwise.
         protected int aiTurn;
+        // Auxiliary array to compute the next move.
         protected int[] boardArray = null;
 
-
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="board">The initial board state.</param>
+        /// <param name="turn">The AI strategy turn: -1 this strategy is the
+        /// first to move, 1 otherwise.</param>
         public TicTacToeSimpleStrategy(TicTacToeBoard board, int turn)
         {
             this.board = new TicTacToeBoard(board);
@@ -19,6 +30,10 @@ namespace BoardGameCore
         }
 
 
+        /// <summary>
+        /// Implements the next own move for this strategy.
+        /// </summary>
+        /// <returns>The index of the square to move in.</returns>
         public override int OwnMove()
         {   
             int result = -1;
@@ -80,6 +95,16 @@ namespace BoardGameCore
         }
 
 
+        /// <summary>
+        /// Selects the only free square among the given indexes.
+        /// This method assumes that exactly one among p1, p2 and p3
+        /// is a free square on the board. The given indexes represent
+        /// a row, a column or a diagonal of the board.
+        /// </summary>
+        /// <param name="p1">Index 1.</param>
+        /// <param name="p2">Index 2</param>
+        /// <param name="p3">Index 3</param>
+        /// <returns>The free square index.</returns>
         protected int selectFreeSquare(int p1, int p2, int p3)
         {
             if (boardArray[p1] == 0)
@@ -96,7 +121,12 @@ namespace BoardGameCore
             }
         }
 
-
+        /// <summary>
+        /// Selects a free square from a given pattern (rows, columns and
+        /// diagolans) indexed by <code>i</code>.
+        /// </summary>
+        /// <param name="i">The index of a given pattern.</param>
+        /// <returns>The index of the free square within the pattern.</returns>
         protected int selectFreeSquare(int i)
         {
             int result = -1;
@@ -133,16 +163,109 @@ namespace BoardGameCore
         }
 
 
+        /// <summary>
+        /// Updates the board with the last opponent move.
+        /// </summary>
+        /// <param name="square">The last opponent move.</param>
         public override void OpponentMove(int square)
         {
             board.Move(square, -1*aiTurn);
         }
 
 
+        /// <summary>
+        /// Resets the internal board representation.
+        /// </summary>
         public override void Reset()
         {
             this.board = new TicTacToeBoard(new TicTacToeBoard()); 
         }
 
     }
+
+
+    /// <summary>
+    /// This class implements a better simple strategy for the TicTacToe board
+    /// game, slightly improving the first one.
+    /// </summary>
+    public class TicTacToeBetterSimpleStrategy : TicTacToeSimpleStrategy
+    {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="board">The initial board state.</param>
+        /// <param name="turn">The AI strategy turn: -1 this strategy is the
+        /// first to move, 1 otherwise.</param>
+        public TicTacToeBetterSimpleStrategy(TicTacToeBoard board, int turn)
+            : base(board, turn)
+        {
+        }
+
+
+        /// <summary>
+        /// Implements the next own move for this strategy.
+        /// </summary>
+        /// <returns>The index of the square to move in.</returns>
+        public override int OwnMove()
+        {
+            int result = -1;
+            board.BoardToArray(ref boardArray);
+            List<int> rows = new List<int>() {
+                boardArray[0] + boardArray[1] + boardArray[2],
+                boardArray[3] + boardArray[4] + boardArray[5],
+                boardArray[6] + boardArray[7] + boardArray[8],
+                boardArray[0] + boardArray[3] + boardArray[6],
+                boardArray[1] + boardArray[4] + boardArray[7],
+                boardArray[2] + boardArray[5] + boardArray[8],
+                boardArray[0] + boardArray[4] + boardArray[8],
+                boardArray[2] + boardArray[4] + boardArray[6]
+            };
+
+            int i = 0;
+            // Order matter: first try to win, than avoid to lose.
+            if (aiTurn > 0)
+            {
+                foreach (int row in rows)
+                {
+                    if (row == 2)
+                    {
+                        // Do not loose.
+                        result = selectFreeSquare(i);
+                    }
+                    else if (row == -2)
+                    {
+                        // Win.
+                        result = selectFreeSquare(i);
+                    }
+                    i++;
+                }
+            }
+            else
+            {
+                foreach (int row in rows)
+                {
+                    if (row == -2)
+                    {
+                        // Do not loose.
+                        result = selectFreeSquare(i);
+                    }
+                    else if (row == 2)
+                    {
+                        // Win.
+                        result = selectFreeSquare(i);
+                    }
+                    i++;
+                }
+            }
+            if (result < 0)
+            {
+                Random random = new Random();
+                int index = random.Next(0, board.GetTurnLeft());
+                result = board.freeSquare.ElementAt(index);
+            }
+            board.Move(result, aiTurn);
+            return result;
+        }
+    }
+
 }
