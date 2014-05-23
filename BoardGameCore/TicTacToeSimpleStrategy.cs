@@ -29,7 +29,6 @@ namespace BoardGameCore
             aiTurn = turn;
         }
 
-
         /// <summary>
         /// Implements the next own move for this strategy.
         /// </summary>
@@ -93,7 +92,6 @@ namespace BoardGameCore
             board.Move(result, aiTurn);
             return result;
         }
-
 
         /// <summary>
         /// Selects the only free square among the given indexes.
@@ -162,7 +160,6 @@ namespace BoardGameCore
             return result;
         }
 
-
         /// <summary>
         /// Updates the board with the last opponent move.
         /// </summary>
@@ -171,7 +168,6 @@ namespace BoardGameCore
         {
             board.Move(square, -1*aiTurn);
         }
-
 
         /// <summary>
         /// Resets the internal board representation.
@@ -182,7 +178,6 @@ namespace BoardGameCore
         }
 
     }
-
 
     /// <summary>
     /// This class implements a better simple strategy for the TicTacToe board
@@ -200,7 +195,6 @@ namespace BoardGameCore
             : base(board, turn)
         {
         }
-
 
         /// <summary>
         /// Implements the next own move for this strategy.

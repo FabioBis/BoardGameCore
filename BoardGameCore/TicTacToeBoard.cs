@@ -43,7 +43,6 @@ namespace BoardGameCore
             }
         }
 
-
         /// <summary>
         /// Copy constructor.
         /// </summary>
@@ -59,22 +58,35 @@ namespace BoardGameCore
             }
         }
 
-
+        /// <summary>
+        /// Returns the maximum number of turns until the game end.
+        /// </summary>
+        /// <returns></returns>
         public int GetTurnLeft()
         {
             return turnLeft;
         }
 
-
-        internal bool IsValidMove(int square)
+        /// <summary>
+        /// Checks if a given move is valid.
+        /// </summary>
+        /// <param name="square">The next move index.</param>
+        /// <returns><code>true</code> if the move is valid, <code>false</code>
+        ///  otherwhise.</returns>
+        public bool IsValidMove(int square)
         {
             return (turnLeft > 0 && freeSquare.Contains(square));
         }
 
-
-        internal void Move(int square, int turn)
+        /// <summary>
+        /// Allows to complete a move.
+        /// </summary>
+        /// <param name="square">The move index.</param>
+        /// <param name="turn">The player turn: -1 represents the first player,
+        /// 1 represents the second player.</param>
+        public void Move(int square, int turn)
         {
-            // Assuming the move is sound.
+            // Assuming the move is correct.
             board[square] = turn;
             freeSquare.Remove(square);
             turnLeft -= 1;
@@ -83,7 +95,6 @@ namespace BoardGameCore
                 gameOver = true;
             }
         }
-
 
         /// <summary>
         /// This method check the board to look for a winner.
@@ -94,7 +105,7 @@ namespace BoardGameCore
         /// -2 if the first player won, 2 if the second player won,
         /// 0 if the match is not yet finished.
         /// </returns>
-        internal int CheckForWinner()
+        public int CheckForWinner()
         {
             List<int> rows = new List<int>() {
                 board[0] + board[1] + board[2],
@@ -123,8 +134,10 @@ namespace BoardGameCore
             return 0;
         }
 
-
-        internal bool IsEmpty()
+        /// <summary>
+        /// Checks if the game board is empty.
+        /// </summary>
+        public bool IsEmpty()
         {
             int sum = 0;
             for (int i = 0; i < board.Length; i++)
@@ -134,8 +147,10 @@ namespace BoardGameCore
             return sum == 0;
         }
 
-
-        internal bool isFull()
+        /// <summary>
+        /// Checks if the game board is full.
+        /// </summary>
+        public bool IsFull()
         {
             for (int i = 0; i < board.Length; i++)
             {
@@ -147,8 +162,11 @@ namespace BoardGameCore
             return true;
         }
 
-
-        internal bool End()
+        /// <summary>
+        /// Check if the game is over.
+        /// </summary>
+        /// <returns></returns>
+        public bool Ended()
         {
             CheckForWinner();
             return gameOver;

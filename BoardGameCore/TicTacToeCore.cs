@@ -102,7 +102,7 @@ namespace BoardGameCore
             {
                 return true;
             }
-            return board.End();
+            return board.Ended();
         }
 
     }

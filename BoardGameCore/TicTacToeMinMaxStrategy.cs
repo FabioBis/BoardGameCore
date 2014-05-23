@@ -15,7 +15,6 @@ namespace BoardGameCore
         // if iaTurn = -1 the IA is the first to play, second to play otherwise.
         private int aiTurn;
 
-
         public DecisionTree<TicTacToeBoard> decisionTree
         {
             get
@@ -27,7 +26,6 @@ namespace BoardGameCore
                 _decisionTree = value;
             }
         }
-
 
         /// <summary>
         /// Constructor.
@@ -51,7 +49,6 @@ namespace BoardGameCore
             populateTree(rootNode, aiTurn);
         }
 
-
         /// <summary>
         /// Constructor.
         /// This constructor builds a new strategy from the turn of the first to play.
@@ -69,7 +66,7 @@ namespace BoardGameCore
                     new MinMaxDecision(null, MiniMax.Max)
                 );
                 // Populate the tree.
-                buildNode(_decisionTree.GetRoot(), aiTurn, MiniMax.Max);
+                buildNode(_decisionTree.GetRoot(), -1, MiniMax.Max);
             }
             else
             {
@@ -79,12 +76,9 @@ namespace BoardGameCore
                     new MinMaxDecision(null, MiniMax.Min)
                 );
                 // Populate the tree.
-                buildNode(_decisionTree.GetRoot(), aiTurn, MiniMax.Min);
+                buildNode(_decisionTree.GetRoot(), -1, MiniMax.Min);
             }
         }
-
-
-
 
         /// <summary>
         /// This method populates the decision tree for the current game.
@@ -97,7 +91,6 @@ namespace BoardGameCore
         {
             buildNode(root, turn, MiniMax.Max);
         }
-
 
         /// <summary>
         /// Returns the opposite MiniMax type of <code>source</code>.
@@ -128,12 +121,13 @@ namespace BoardGameCore
             MiniMax type)
         {
             TicTacToeBoard nodeBoard = new TicTacToeBoard(node.Value);
-            if (nodeBoard.isFull())
+            if (nodeBoard.IsFull())
             {
                 // Base: leaf node, evaluate the MiniMax value.
                 ((MinMaxDecision)node.LastMove).SetValue(Fitness(nodeBoard));
                 return;
             }
+            // Recursive: build the children.
             MiniMax childrenType = swapType(type);
             foreach (int square in nodeBoard.freeSquare.ToList())
             {
@@ -146,6 +140,7 @@ namespace BoardGameCore
                 int next = turn * -1;
                 if (childBoard.CheckForWinner() == 0)
                 {
+                    // Recursive: build the child.
                     buildNode(childNode, next, childrenType);
                 }
                 else
@@ -206,8 +201,6 @@ namespace BoardGameCore
 
         override public int OwnMove()
         {
-            //Decision decision =
-            //    decisionTree.MakeDecision(Heuristic.MAX);
             return makeDecision();
         }
 
