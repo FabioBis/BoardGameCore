@@ -5,22 +5,6 @@ using System.Text;
 
 namespace BoardGameCore
 {
-    public class Board
-    {
-        protected int[] board;
-        protected bool gameOver = false;
-
-        public void BoardToArray(ref int[] dest)
-        {
-            dest = new int[board.Length];
-            for (int i = 0; i < board.Length; i++)
-            {
-                dest[i] = board[i];
-            }
-        }
-
-    }
-
     /// <summary>
     /// The Tic Tac Toe board representation.
     /// </summary>

@@ -43,13 +43,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Board.cs" />
     <Compile Include="Connect4Board.cs" />
     <Compile Include="TicTacToeBoard.cs" />
     <Compile Include="TicTacToeCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TicTacToeMinMaxStrategy.cs" />
     <Compile Include="TicTacToeSimpleStrategy.cs" />
-    <Compile Include="TicTacToeSimpleStrategy2.cs" />
     <Compile Include="TicTacToeStrategy.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
