@@ -8,10 +8,10 @@ namespace BoardGameCore
     public class TicTacToeCore
     {
         // The tic Tac Toe board representation.
-        private static TicTacToeBoard board;
+        private TicTacToeBoard board;
 
         // The player turn (-1 or 1).
-        private static int turn;
+        private int turn;
 
 
         /// <summary>
