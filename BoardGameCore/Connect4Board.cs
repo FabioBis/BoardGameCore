@@ -34,10 +34,10 @@ namespace BoardGameCore
         /// Array representation of the board.
         ///  ______ ______ ______ ______ ______ ______ ______
         /// |      |      |      |      |      |      |      |
-        /// |   0  |   1  |   2  |   3  |   4  |   5  |   6  |
+        /// |  00  |  01  |  02  |  03  |  04  |  05  |  06  |
         /// |______|______|______|______|______|______|______|
         /// |      |      |      |      |      |      |      |
-        /// |   7  |   8  |   9  |  10  |  11  |  12  |  13  |
+        /// |  07  |  08  |  09  |  10  |  11  |  12  |  13  |
         /// |______|______|______|______|______|______|______|
         /// |      |      |      |      |      |      |      |
         /// |  14  |  15  |  16  |  17  |  18  |  19  |  20  |
@@ -50,14 +50,13 @@ namespace BoardGameCore
         /// |______|______|______|______|______|______|______|
         /// |      |      |      |      |      |      |      |
         /// |  35  |  36  |  37  |  38  |  39  |  40  |  41  |
-        /// |______|______|______|______|______|______|______|
-        
+        /// |______|______|______|______|______|______|______|     
 
         // The number of turn to fill the board.
         int turnLeft;
 
         // List of free square.
-        public List<int> freeSquare;
+        List<int> freeSquare;
 
         // List of free square divided by column stack.
         // This will be usefull to track the next free square
@@ -67,12 +66,11 @@ namespace BoardGameCore
         // 28 29     34
         // 21 22     27
         // 14 15     20
-        //  7  8     13
-        //  0  1      6
+        // 07 08     13
+        // 00 01     06
         // -- -- ... --
         // C0 C1 ... C6
         public List<Stack<int>> freeByColumn;
-
 
         /// <summary>
         /// Default constructor.
@@ -100,7 +98,6 @@ namespace BoardGameCore
             }
         }
 
-
         /// <summary>
         /// Copy constructor.
         /// </summary>
@@ -117,20 +114,27 @@ namespace BoardGameCore
             }
         }
 
-
+        /// <summary>
+        /// Returns the maximum number of turns until the game ends.
+        /// </summary>
         public int GetTurnLeft()
         {
             return turnLeft;
         }
 
-
+        /// <summary>
+        /// Returns true if and only if the given square is free and
+        /// the next free square on the square's column is exactly that
+        /// square.
+        /// </summary>
+        /// <param name="square">The move to be checked.</param>
+        /// <returns><code>true</code> if the move is valid, false otherwise.</returns>
         internal bool IsValidMove(int square)
         {
             return (turnLeft > 0
                 && freeSquare.Contains(square)
                 && freeByColumn.ElementAt(square % 7).Peek().Equals(square));
         }
-
 
         /// <summary>
         /// Assuming the move is sound set the board[square]
@@ -148,7 +152,6 @@ namespace BoardGameCore
             turnLeft -= 1;
         }
 
-
         /// <summary>
         /// This method check the board to look if the last player who moved won.
         /// </summary>
@@ -159,8 +162,8 @@ namespace BoardGameCore
         {
             if (checkRow(square, turn) ||
                 checkColumn(square, turn) ||
-                checkDiag1(square, turn) ||
-                checkDiag2(square, turn))
+                checkDiagDLtoUR(square, turn) ||
+                checkDiagULtoDR(square, turn))
             {
                 return true;
             }
@@ -170,28 +173,38 @@ namespace BoardGameCore
 	        }
         }
 
-        // Up-left to Down-right diagonal.
-        private bool checkDiag2(int square, int turn)
+        /// <summary>
+        /// Checks if the givn player (turn) won by the up-left to down-right
+        /// diagonal of the given square.
+        /// </summary>
+        private bool checkDiagULtoDR(int square, int turn)
         {
             // Find the lowerbound.
             int lowerBound = findLB(square, 8);
             // Find the upperbound.
             int upperBound = findUB(square, 8);
             // Check for a connect 4 (step by 8).
-            return checkConnect4(lowerBound, upperBound, 8, turn);
+            return checkConnect4Winner(lowerBound, upperBound, 8, turn);
         }
 
-        // Down-left to Up-right diagonal.
-        private bool checkDiag1(int square, int turn)
+        /// <summary>
+        /// Checks if the givn player (turn) won by the down-left to up-right
+        /// diagonal of the given square.
+        /// </summary>
+        private bool checkDiagDLtoUR(int square, int turn)
         {
             // Find the lowerbound.
             int lowerBound = findLB(square, 6);
             // Find the upperbound.
             int upperBound = findUB(square, 6);
             // Check for a connect 4 (step by 6).
-            return checkConnect4(lowerBound, upperBound, 6, turn);
+            return checkConnect4Winner(lowerBound, upperBound, 6, turn);
         }
 
+        /// <summary>
+        /// Checks if the givn player (turn) won by the column of the
+        /// given square.
+        /// </summary>
         private bool checkColumn(int square, int turn)
         {
             // Find the lowerbound.
@@ -199,19 +212,36 @@ namespace BoardGameCore
             // Find the upperbound.
             int upperBound = findUB(square, 7);
             // Check for a connect 4 (step by 7).
-            return checkConnect4(lowerBound, upperBound, 7, turn);
+            return checkConnect4Winner(lowerBound, upperBound, 7, turn);
         }
 
+        /// <summary>
+        /// Checks if the givn player (turn) won by the row of the
+        /// given square.
+        /// </summary>
         private bool checkRow(int square, int turn)
         {
             int bias = square % 7;
             int lowerBound = square - Math.Min(bias, 3);
             int upperBound = square - Math.Min(6 - bias, 3);
             // Check for a connect 4 (step by 1).
-            return checkConnect4(lowerBound, upperBound, 1, turn);
+            return checkConnect4Winner(lowerBound, upperBound, 1, turn);
         }
 
-        private bool checkConnect4(int lowerBound, int upperBound, int step, int turn)
+        /// <summary>
+        /// Returns <code>true</code> if and only if the given turn player won th game
+        /// (four adiacent square vertically, horizontally, or diagonally).
+        /// 
+        /// This method check the board array from an index (lowerBound) to
+        /// an other one (upperBound) and all the square between them by a
+        /// given step. I.e.
+        /// </summary>
+        /// <param name="lowerBound">The index from start to.</param>
+        /// <param name="upperBound">The index where end to.</param>
+        /// <param name="step">The checking step.</param>
+        /// <param name="turn">The player turn to be checked.</param>
+        /// <returns><code>true</code> if the player won, false otherwise.</returns>
+        private bool checkConnect4Winner(int lowerBound, int upperBound, int step, int turn)
         {
             int four = 0;
             for (int i = lowerBound; i <= upperBound + step; )
@@ -236,6 +266,9 @@ namespace BoardGameCore
             return false;
         }
 
+        /// <summary>
+        /// Computes the lower bound from a square ad a given step.
+        /// </summary>
         private int findLB(int square, int step)
         {
             int lowerBoundCheck = square;
@@ -248,6 +281,9 @@ namespace BoardGameCore
             return lowerBound;
         }
 
+        /// <summary>
+        /// Computes the upper bound from a square ad a given step.
+        /// </summary>
         private int findUB(int square, int step)
         {
             int upperBoundCheck = square;
