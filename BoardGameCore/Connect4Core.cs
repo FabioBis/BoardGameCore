@@ -21,7 +21,6 @@
 //    distribution.
 //
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,23 +28,25 @@ using System.Text;
 
 namespace BoardGameCore
 {
-    public class TicTacToeCore
+    class Connect4Core
     {
-        // The Tic Tac Toe board representation.
-        private TicTacToeBoard board;
+        // The Connect Four board representation.
+        private Connect4Board board;
 
         // The player turn (-1 or 1).
         private int turn;
+
 
         /// <summary>
         /// Default constructor. Initialise the game board (all square to 0),
         /// the first player turn and the turn left (the maximum turn for this game).
         /// </summary>
-        public TicTacToeCore()
+        public Connect4Core()
         {
-            board = new TicTacToeBoard();
+            board = new Connect4Board();
             turn = -1;
         }
+
 
         /// <summary>
         /// Getter method for the current player turn.
@@ -56,11 +57,12 @@ namespace BoardGameCore
             return turn;
         }
 
+
         /// <summary>
         /// Getter method for the game board.
         /// </summary>
         /// <returns></returns>
-        public TicTacToeBoard GetBoard()
+        public Connect4Board GetBoard()
         {
             return board;
         }
@@ -68,20 +70,20 @@ namespace BoardGameCore
         /// <summary>
         /// This method implements the player move.
         /// The method returns true if the move of the current player
-        /// is valid (the board square is empthy) and than sets the player
+        /// is valid (the board column is not full) and than sets the player
         /// turn value into the board square.
         /// </summary>
-        /// <param name="square">The index of the board square representation.</param>
+        /// <param name="square">The index of the board column.</param>
         /// <returns>true if the move is valid, false otherwise.</returns>
-        public bool Move(int square)
+        public bool Move(int columnIndex)
         {
-            if (!board.IsValidMove(square))
+            if (!board.IsValidMove(columnIndex))
             {
                 return false;
             }
             else
             {
-                board.Move(square, turn);
+                board.Move(columnIndex, turn);
                 turn *= -1;
                 return true;
             }
@@ -113,18 +115,5 @@ namespace BoardGameCore
                 }
             }
         }
-
-        /// <summary>
-        /// Returns <code>true</code> if the game is over.
-        /// </summary>
-        public bool End()
-        {
-            if (board.GetTurnLeft() <= 0)
-            {
-                return true;
-            }
-            return board.Ended();
-        }
-
     }
 }

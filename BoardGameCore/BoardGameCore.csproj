@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Board.cs" />
     <Compile Include="Connect4Board.cs" />
+    <Compile Include="Connect4Core.cs" />
     <Compile Include="TicTacToeBoard.cs" />
     <Compile Include="TicTacToeCore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
