@@ -28,7 +28,7 @@ using System.Text;
 
 namespace BoardGameCore
 {
-    class Connect4Core
+    public class Connect4Core
     {
         // The Connect Four board representation.
         private Connect4Board board;
@@ -89,31 +89,31 @@ namespace BoardGameCore
             }
         }
 
-        /// <summary>
-        /// This method check the board to look for a winner.
-        /// </summary>
-        /// <returns>
-        /// -2 if the first player won, 2 if the second player won,
-        /// 0 if the match is not yet finished, 1 if there is a draw.
-        /// </returns>
-        public int CheckForWinner()
-        {
-            int result = board.CheckForWinner();
-            if (board.GetTurnLeft() > 0)
-            {
-                return result;
-            }
-            else
-            {
-                if (result == 0)
-                {
-                    return 1;
-                }
-                else
-                {
-                    return result;
-                }
-            }
-        }
+        ///// <summary>
+        ///// This method check the board to look for a winner.
+        ///// </summary>
+        ///// <returns>
+        ///// -2 if the first player won, 2 if the second player won,
+        ///// 0 if the match is not yet finished, 1 if there is a draw.
+        ///// </returns>
+        //public int CheckForWinner()
+        //{
+        //    int result = board.CheckForWinner();
+        //    if (board.GetTurnLeft() > 0)
+        //    {
+        //        return result;
+        //    }
+        //    else
+        //    {
+        //        if (result == 0)
+        //        {
+        //            return 1;
+        //        }
+        //        else
+        //        {
+        //            return result;
+        //        }
+        //    }
+        //}
     }
 }

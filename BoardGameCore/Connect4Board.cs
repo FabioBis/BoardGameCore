@@ -138,17 +138,17 @@ namespace BoardGameCore
 
         /// <summary>
         /// Assuming the move is sound set the board[square]
-        /// value to the one that represent the current player (1 or 2).
+        /// value to the one that represents the current player (1 or 2).
         /// Than remove the square from the list of free squares.
         /// </summary>
         /// <param name="square"></param>
         /// <param name="turn"></param>
-        internal void Move(int square, int turn)
+        internal void Move(int column, int turn)
         {
             // Assuming the move is sound.
+            int square = freeByColumn.ElementAt(column % 7).Pop();
             board[square] = turn;
             freeSquare.Remove(square);
-            freeByColumn.ElementAt(square % 7).Pop();
             turnLeft -= 1;
         }
 
