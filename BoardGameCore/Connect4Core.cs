@@ -36,6 +36,13 @@ namespace BoardGameCore
         // The player turn (-1 or 1).
         private int turn;
 
+        // The current move number.
+        private int move;
+
+        // The array of game moves.
+        // At even indexes are stored first player moves, at odd indexes are
+        // stored the second player moves, both in chronological order.
+        private int[] movesDone;
 
         /// <summary>
         /// Default constructor. Initialise the game board (all square to 0),
@@ -43,6 +50,12 @@ namespace BoardGameCore
         /// </summary>
         public Connect4Core()
         {
+            move = 0;
+            movesDone = new int[42];
+            for (int i = 0; i < 42; i++)
+            {
+                movesDone[i] = -1;
+            }
             board = new Connect4Board();
             turn = -1;
         }
@@ -52,9 +65,17 @@ namespace BoardGameCore
         /// Getter method for the current player turn.
         /// </summary>
         /// <returns>The player turn.</returns>
-        public int GetTurn()
+        public int GetNextTurn()
         {
             return turn;
+        }
+
+        /// <summary>
+        /// Getter method for the last player turn.
+        /// </summary>
+        public int GetLastTurn()
+        {
+            return (turn * -1);
         }
 
 
@@ -83,8 +104,9 @@ namespace BoardGameCore
             }
             else
             {
-                board.Move(columnIndex, turn);
+                movesDone[move] = board.Move(columnIndex, turn);
                 turn *= -1;
+                move++;
                 return true;
             }
         }
@@ -115,5 +137,31 @@ namespace BoardGameCore
         //        }
         //    }
         //}
+
+        /// <summary>
+        /// Returns the index of the square of the last move.
+        /// </summary>
+        /// <returns></returns>
+        public int GetLastSquareMove()
+        {
+            return movesDone[move - 1];
+        }
+
+        /// <summary>
+        /// Returns <code>true</code> if the last player won the game.
+        /// </summary>
+        public bool CheckVictory()
+        {
+            int lastTurn = turn * -1;
+            return board.CheckVictory(movesDone[move - 1], lastTurn);
+        }
+
+        /// <summary>
+        /// Returns <code>true</code> if the game is over.
+        /// </summary>
+        public bool IsOver()
+        {
+            return board.GameOver();
+        }
     }
 }
