@@ -123,17 +123,15 @@ namespace BoardGameCore
         }
 
         /// <summary>
-        /// Returns true if and only if the given square is free and
-        /// the next free square on the square's column is exactly that
-        /// square.
+        /// Returns true if and only if the given column index represents a
+        /// column with some free squaree.
         /// </summary>
         /// <param name="square">The move to be checked.</param>
         /// <returns><code>true</code> if the move is valid, false otherwise.</returns>
-        internal bool IsValidMove(int square)
+        internal bool IsValidMove(int columnIndex)
         {
             return (turnLeft > 0
-                && freeSquare.Contains(square)
-                && freeByColumn.ElementAt(square % 7).Peek().Equals(square));
+                && freeByColumn.ElementAt(columnIndex).Count != 0);
         }
 
         /// <summary>
@@ -141,15 +139,17 @@ namespace BoardGameCore
         /// value to the one that represents the current player (1 or 2).
         /// Than remove the square from the list of free squares.
         /// </summary>
-        /// <param name="square"></param>
-        /// <param name="turn"></param>
-        internal void Move(int column, int turn)
+        /// <param name="column">The column index of the move.</param>
+        /// <param name="turn">The current player turn.</param>
+        /// <returns>The index of the square occupied on the board.</returns>
+        internal int Move(int column, int turn)
         {
             // Assuming the move is sound.
             int square = freeByColumn.ElementAt(column % 7).Pop();
             board[square] = turn;
             freeSquare.Remove(square);
             turnLeft -= 1;
+            return square;
         }
 
         /// <summary>
@@ -248,6 +248,8 @@ namespace BoardGameCore
             {
                 if (four == 4)
                 {
+                    // Game is over.
+                    gameOver = true;
                     return true;
                 }
                 else if (i < upperBound + step)
@@ -296,5 +298,15 @@ namespace BoardGameCore
             return upperBound;
         }
 
+        /// <summary>
+        /// Returns <code>true</code> if the board is full or
+        /// there are at least four connected squares for the same
+        /// player.
+        /// </summary>
+        /// <returns></returns>
+        internal bool GameOver()
+        {
+            return (turnLeft <= 0 || gameOver);
+        }
     }
 }
