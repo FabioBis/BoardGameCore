@@ -30,7 +30,7 @@ using SharpSearch;
 
 namespace BoardGameCore
 {
-    public class TicTacToeMinMaxStrategy : TicTacToeStrategy
+    public class TicTacToeMinMaxStrategy : BoardGameStrategy
     {
         // The decision tree for the strategy.
         private DecisionTree<TicTacToeBoard> _decisionTree;

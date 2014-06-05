@@ -32,7 +32,7 @@ namespace BoardGameCore
     /// <summary>
     /// This class implements a simple strategy for the TicTacToe board game.
     /// </summary>
-    public class TicTacToeSimpleStrategy : TicTacToeStrategy
+    public class TicTacToeSimpleStrategy : BoardGameStrategy
     {
         // The game board internal representation.
         protected TicTacToeBoard board;

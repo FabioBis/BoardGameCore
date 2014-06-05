@@ -29,7 +29,7 @@ using System.Text;
 
 namespace BoardGameCore
 {
-    abstract public class TicTacToeStrategy
+    abstract public class BoardGameStrategy
     {
         abstract public int OwnMove();
         abstract public void OpponentMove(int square);

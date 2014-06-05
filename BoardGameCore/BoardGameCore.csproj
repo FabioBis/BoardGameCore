@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Board.cs" />
+    <Compile Include="Connect4AlphaBetaStrategy.cs" />
     <Compile Include="Connect4Board.cs" />
     <Compile Include="Connect4Core.cs" />
     <Compile Include="TicTacToeBoard.cs" />
