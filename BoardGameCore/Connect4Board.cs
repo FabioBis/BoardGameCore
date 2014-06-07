@@ -331,13 +331,9 @@ namespace BoardGameCore
         }
 
         /// <summary>
-        /// Return an evaluation of the board state.
-        /// If there are no winner the value is 0, otherwise the value
-        /// is positive if it is the first player to win, negative if
-        /// it is the second player to win. Early a player win higher
-        /// in magnitude (abs value) the evaluation is.
+        /// Return the winner value: 1, -1 or 0 if no one won (yet).
         /// </summary>
-        public int Evaluate()
+        public int GetWinner()
         {
             return winner + winner * turnLeft;
         }
