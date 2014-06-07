@@ -178,15 +178,60 @@ namespace BoardGameCore
             ref int alpha,
             ref int beta)
         {
+            int nodeValue = Int32.MinValue;
             if (node.Value.GameOver())
             {
                 // Base: leaf node, evaluate the MiniMax value.
-                ((MinMaxDecision)node.LastMove).SetValue(Fitness(node.Value));
-                return;
+                nodeValue = Fitness(node.Value);
             }
             else
             {
+                foreach (int column in node.Value.GetFreeColumns().ToList())
+                {
+                    Connect4Board childBoard = new Connect4Board(node.Value);
+                    // Min moves filling the board using integer value -1.
+                    int squareMovedTo = childBoard.Move(column, -1);
+                    MinMaxDecision decision =
+                        new MinMaxDecision(column, MiniMax.Min);
+                    DecisionTreeNode<Connect4Board> childNode =
+                        new DecisionTreeNode<Connect4Board>(childBoard, decision);
+                    if (childBoard.CheckVictory(squareMovedTo, -1))
+                    {
+                        // Base: GameOver, leaf node, evaluate the MiniMax value.
+                        ((MinMaxDecision)childNode.LastMove).SetValue(Fitness(
+                            childBoard));
+                    }
+                    else
+                    {
+                        // Recursive: build the child.
+                        int value = buildMinNode(childNode, ref alpha, ref beta);
+                        nodeValue = max(nodeValue, value);
+                        if (nodeValue >= beta)
+                        {
+                            // Pruned branch.
+                            ((MinMaxDecision)node.LastMove).SetValue(value);
+                            return value;
+                        }
+                        else
+                        {
+                            alpha = max(alpha, nodeValue);
+                        }
+                    }
+                }
+            }
+            ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
+            return nodeValue;
+        }
 
+        private int max(int a, int b)
+        {
+            if (a <= b)
+            {
+                return b;
+            }
+            else
+            {
+                return a;
             }
         }
 
