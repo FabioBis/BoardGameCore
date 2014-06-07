@@ -78,6 +78,22 @@ namespace BoardGameCore
         }
 
         /// <summary>
+        /// Constructor.
+        /// This constructor builds a new strategy based on the given current
+        /// board game state. It assumes that the next player to move is the
+        /// AI player.
+        /// </summary>
+        /// <param name="state"></param>
+        public Connect4AlphaBetaStrategy(Connect4Board state)
+        {
+            decisionTree = new DecisionTree<Connect4Board>(
+                    state,
+                    new MinMaxDecision(null, MiniMax.Max)
+                    );
+            buildTree(decisionTree.GetRoot(), MiniMax.Max);
+        }
+
+        /// <summary>
         /// This method build the given node, and recursively all the
         /// children using depth-first traversal with pre-order visit.
         /// </summary>
