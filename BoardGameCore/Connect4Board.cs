@@ -56,7 +56,7 @@ namespace BoardGameCore
         int turnLeft;
 
         // List of free square.
-        List<int> freeSquare;
+        List<int> freeColumns;
 
         // List of free square divided by column stack.
         // This will be usefull to track the next free square
@@ -77,11 +77,12 @@ namespace BoardGameCore
         /// </summary>
         public Connect4Board()
         {
-            freeSquare = new List<int>();
+            freeColumns = new List<int>();
             freeByColumn = new List<Stack<int>>();
             for (int i = 0; i < 7; i++)
             {
                 freeByColumn.Add(new Stack<int>());
+                freeColumns.Add(i);
             }
 
             turnLeft = 42;
@@ -91,9 +92,7 @@ namespace BoardGameCore
                 // Fill the stack in position (i modulo 7) with i.
                 // i.e. last column in position 6 will contains (i = 7*k + i mod 7):
                 // 41 = 7*5 + 6, 34 = 7*4 + 6, 27 = 7*3 + 6, etc...
-                freeByColumn.ElementAt((i % 7)).Push(i);
-                // Fill the list of all free square.
-                freeSquare.Add(i);
+                freeByColumn.ElementAt((i % 7)).Push(i);                
                 board[i] = 0;
             }
         }
@@ -106,7 +105,7 @@ namespace BoardGameCore
         {
             turnLeft = source.turnLeft;
             board = new int[42];
-            freeSquare = new List<int>(source.freeSquare);
+            freeColumns = new List<int>(source.freeColumns);
             freeByColumn = new List<Stack<int>>(source.freeByColumn);
             for (int i = 0; i < 42; i++)
             {
@@ -120,6 +119,15 @@ namespace BoardGameCore
         public int GetTurnLeft()
         {
             return turnLeft;
+        }
+
+        /// <summary>
+        /// Returns a list of the avaliable column indexes.
+        /// </summary>
+        /// <returns></returns>
+        public List<int> GetFreeColumns()
+        {
+            return freeColumns;
         }
 
         /// <summary>
@@ -145,9 +153,13 @@ namespace BoardGameCore
         internal int Move(int column, int turn)
         {
             // Assuming the move is sound.
-            int square = freeByColumn.ElementAt(column % 7).Pop();
+            int square = freeByColumn.ElementAt(column).Pop();
+            if (freeByColumn.ElementAt(column).Count == 0)
+            {
+                // The column is full, no more moves available.
+                freeColumns.Remove(column);
+            }
             board[square] = turn;
-            freeSquare.Remove(square);
             turnLeft -= 1;
             return square;
         }
