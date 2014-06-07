@@ -55,6 +55,9 @@ namespace BoardGameCore
         // The number of turn to fill the board.
         int turnLeft;
 
+        // The winner: -1, 1, or 0 (no winner).
+        int winner = 0;
+
         // List of free square.
         List<int> freeColumns;
 
@@ -152,6 +155,11 @@ namespace BoardGameCore
         /// <returns>The index of the square occupied on the board.</returns>
         internal int Move(int column, int turn)
         {
+            if (turn != 1 || turn != -1)
+	        {
+                // turn value must be equal 1 or -1.
+		        throw new ArgumentException();
+	        }
             // Assuming the move is sound.
             int square = freeByColumn.ElementAt(column).Pop();
             if (freeByColumn.ElementAt(column).Count == 0)
@@ -261,6 +269,7 @@ namespace BoardGameCore
                 if (four == 4)
                 {
                     // Game is over.
+                    winner = turn;
                     gameOver = true;
                     return true;
                 }
@@ -319,6 +328,18 @@ namespace BoardGameCore
         internal bool GameOver()
         {
             return (turnLeft <= 0 || gameOver);
+        }
+
+        /// <summary>
+        /// Return an evaluation of the board state.
+        /// If there are no winner the value is 0, otherwise the value
+        /// is positive if it is the first player to win, negative if
+        /// it is the second player to win. Early a player win higher
+        /// in magnitude (abs value) the evaluation is.
+        /// </summary>
+        public int Evaluate()
+        {
+            return winner + winner * turnLeft;
         }
     }
 }
