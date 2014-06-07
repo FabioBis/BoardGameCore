@@ -78,22 +78,6 @@ namespace BoardGameCore
         }
 
         /// <summary>
-        /// Constructor.
-        /// This constructor builds a new strategy based on the given current
-        /// board game state. It assumes that the next player to move is the
-        /// AI player.
-        /// </summary>
-        /// <param name="state"></param>
-        public Connect4AlphaBetaStrategy(Connect4Board state)
-        {
-            decisionTree = new DecisionTree<Connect4Board>(
-                    state,
-                    new MinMaxDecision(null, MiniMax.Max)
-                    );
-            buildTree(decisionTree.GetRoot(), MiniMax.Max);
-        }
-
-        /// <summary>
         /// This method build the given node, and recursively all the
         /// children using depth-first traversal with pre-order visit.
         /// </summary>
@@ -267,10 +251,29 @@ namespace BoardGameCore
             throw new NotImplementedException();
         }
 
-        // TODO
-        public override void OpponentMove(int square)
+        /// <summary>
+        /// The opponent make his move.
+        /// </summary>
+        public override void OpponentMove(int column)
         {
-            throw new NotImplementedException();
+            MinMaxDecision decision = new MinMaxDecision(column, MiniMax.Min);
+            if (decisionTree.NextDecisionPlanned(decision))
+            {
+                // The next decision tree state will be consistent.
+                decisionTree.ExternalDecisionMade(decision);
+            }
+            else
+            {
+                // The next decision tree state will be inconsistent.
+                // We have to rebuild the tree from the new state.
+                Connect4Board state =
+                    decisionTree.GetNextChoicePoint().Value;
+                state.Move(column, -1);
+                decisionTree = new DecisionTree<Connect4Board>(
+                    state,
+                    new MinMaxDecision(null, MiniMax.Max)
+                    );
+            }
         }
 
         // TODO
