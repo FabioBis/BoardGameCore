@@ -103,8 +103,8 @@ namespace BoardGameCore
         /// Builds a Min node.
         /// </summary>
         /// <param name="node">The node to build.</param>
-        /// <param name="alpha">The best Max value.</param>
-        /// <param name="beta">The best Min value.</param>
+        /// <param name="alpha">The current best Max value.</param>
+        /// <param name="beta">The current best Min value.</param>
         private int buildMinNode(
             DecisionTreeNode<Connect4Board> node,
             ref int alpha,
@@ -242,8 +242,7 @@ namespace BoardGameCore
         /// <returns>The fitness (MinMax) value.</returns>
         private int Fitness(Connect4Board state)
         {
-            // TODO
-            throw new NotImplementedException();
+            return state.GetWinner() + state.GetWinner() * state.GetTurnLeft();
         }
 
         // TODO
