@@ -78,7 +78,6 @@ namespace BoardGameCore
             return (turn * -1);
         }
 
-
         /// <summary>
         /// Getter method for the game board.
         /// </summary>
@@ -110,33 +109,6 @@ namespace BoardGameCore
                 return true;
             }
         }
-
-        ///// <summary>
-        ///// This method check the board to look for a winner.
-        ///// </summary>
-        ///// <returns>
-        ///// -2 if the first player won, 2 if the second player won,
-        ///// 0 if the match is not yet finished, 1 if there is a draw.
-        ///// </returns>
-        //public int CheckForWinner()
-        //{
-        //    int result = board.CheckForWinner();
-        //    if (board.GetTurnLeft() > 0)
-        //    {
-        //        return result;
-        //    }
-        //    else
-        //    {
-        //        if (result == 0)
-        //        {
-        //            return 1;
-        //        }
-        //        else
-        //        {
-        //            return result;
-        //        }
-        //    }
-        //}
 
         /// <summary>
         /// Returns the index of the square of the last move.
