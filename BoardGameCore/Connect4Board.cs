@@ -271,18 +271,18 @@ namespace BoardGameCore
             int four = 0;
             for (int i = lowerBound; i <= upperBound + step; )
             {
-                if (four == 4)
-                {
-                    // Game is over.
-                    winner = turn;
-                    gameOver = true;
-                    return true;
-                }
-                else if (i < upperBound + step)
+                if (i < upperBound + step)
                 {
                     if (board[i] == turn)
                     {
                         four++;
+                        if (four == 4)
+                        {
+                            // Game is over.
+                            winner = turn;
+                            gameOver = true;
+                            return true;
+                        }
                     }
                     else
                     {
