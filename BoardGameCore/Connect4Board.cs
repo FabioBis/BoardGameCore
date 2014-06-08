@@ -155,21 +155,21 @@ namespace BoardGameCore
         /// <returns>The index of the square occupied on the board.</returns>
         internal int Move(int column, int turn)
         {
-            if (turn != 1 || turn != -1)
+            if (turn == 1 || turn == -1)
 	        {
-                // turn value must be equal 1 or -1.
-		        throw new ArgumentException();
+                // Assuming the move is sound.
+                int square = freeByColumn.ElementAt(column).Pop();
+                if (freeByColumn.ElementAt(column).Count == 0)
+                {
+                    // The column is full, no more moves available.
+                    freeColumns.Remove(column);
+                }
+                board[square] = turn;
+                turnLeft -= 1;
+                return square;
 	        }
-            // Assuming the move is sound.
-            int square = freeByColumn.ElementAt(column).Pop();
-            if (freeByColumn.ElementAt(column).Count == 0)
-            {
-                // The column is full, no more moves available.
-                freeColumns.Remove(column);
-            }
-            board[square] = turn;
-            turnLeft -= 1;
-            return square;
+            // turn value must be equal 1 or -1.
+            throw new ArgumentException();
         }
 
         /// <summary>
