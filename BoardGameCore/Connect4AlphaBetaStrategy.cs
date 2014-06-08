@@ -41,7 +41,7 @@ namespace BoardGameCore
     /// make such a move, we discard the current tree and build a new one
     /// from the new game state.
     /// </summary>
-    class Connect4AlphaBetaStrategy : BoardGameStrategy
+    public class Connect4AlphaBetaStrategy : BoardGameStrategy
     {
         // The decision tree for the strategy.
         private DecisionTree<Connect4Board> decisionTree;
