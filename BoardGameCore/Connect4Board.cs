@@ -109,7 +109,12 @@ namespace BoardGameCore
             turnLeft = source.turnLeft;
             board = new int[42];
             freeColumns = new List<int>(source.freeColumns);
-            freeByColumn = new List<Stack<int>>(source.freeByColumn);
+            //freeByColumn = new List<Stack<int>>(source.freeByColumn);
+            freeByColumn = new List<Stack<int>>();
+            foreach (Stack<int> column in source.freeByColumn.ToList())
+            {
+                freeByColumn.Add(new Stack<int>(new Stack<int>(column)));
+            }
             for (int i = 0; i < 42; i++)
             {
                 board[i] = source.board[i];
@@ -243,7 +248,7 @@ namespace BoardGameCore
         {
             int bias = square % 7;
             int lowerBound = square - Math.Min(bias, 3);
-            int upperBound = square - Math.Min(6 - bias, 3);
+            int upperBound = square + Math.Min(6 - bias, 3);
             // Check for a connect 4 (step by 1).
             return checkConnect4Winner(lowerBound, upperBound, 1, turn);
         }
