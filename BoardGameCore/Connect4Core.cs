@@ -60,7 +60,6 @@ namespace BoardGameCore
             turn = -1;
         }
 
-
         /// <summary>
         /// Getter method for the current player turn.
         /// </summary>
@@ -126,6 +125,36 @@ namespace BoardGameCore
         {
             int lastTurn = turn * -1;
             return board.CheckVictory(movesDone[move - 1], lastTurn);
+        }
+
+        /// <summary>
+        /// This method check the board to look for a winner.
+        /// </summary>
+        /// <returns>
+        /// -2 if the first player won, 2 if the second player won,
+        /// 0 if the match is not yet finished, 1 if there is a draw.
+        /// </returns>
+        public int CheckForWinner()
+        {
+            bool thereIsAWinner = CheckVictory();
+            if (board.GameOver())
+            {
+                if (thereIsAWinner)
+                {
+                    // The game is over.
+                    return 2 * turn * -1;
+                }
+                else
+                {
+                    // The game is over without a winner.
+                    return 1;
+                }
+            }
+            else
+            {
+                // The game is not ended yet.
+                return 0;
+            }
         }
 
         /// <summary>
