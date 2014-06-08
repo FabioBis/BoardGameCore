@@ -222,18 +222,15 @@ namespace BoardGameCore
             }
         }
 
-
         override public int OwnMove()
         {
             return makeDecision();
         }
 
-
         private int makeDecision()
         {
             return makeDecisionRec(decisionTree.GetRoot());
         }
-
 
         private int makeDecisionRec(
             DecisionTreeNode<TicTacToeBoard> node)
@@ -269,13 +266,11 @@ namespace BoardGameCore
             }
         }
 
-
         override public void OpponentMove(int square)
         {
             decisionTree.ExternalDecisionMade(
                 new MinMaxDecision(square, MiniMax.Min));
         }
-
 
         /// <summary>
         /// Resets recursively all the decision taken in the tree.

@@ -245,10 +245,48 @@ namespace BoardGameCore
             return state.GetWinner() + state.GetWinner() * state.GetTurnLeft();
         }
 
-        // TODO
+        /// <summary>
+        /// The AI player move.
+        /// </summary>
+        /// <returns>The column index of the game board to move in.</returns>
         public override int OwnMove()
         {
-            throw new NotImplementedException();
+            return makeDecisionRec(decisionTree.GetRoot());
+        }
+
+        private int makeDecisionRec(
+            DecisionTreeNode<Connect4Board> node)
+        {
+            if (node.GetBranches() == 0)
+            {
+                // Base: this is a leaf only one decision expected.
+                return (int)node.LastMove.GetImpl();
+            }
+            else if (node.DecisionMade())
+            {
+                // Recursive: only child, no decision needed at this level.
+                return makeDecisionRec(node.GetChoosenChildren());
+            }
+            else
+            {
+                // Base: multiple branches, the best decision is needed.
+                int index = -1;
+                int minMax = Int32.MinValue;
+                int decision = -1;
+                foreach (DecisionTreeNode<Connect4Board> child in node.Children)
+                {
+                    int tmpMinMax = ((MinMaxDecision)child.LastMove).GetValue();
+                    // Keep the oldest best value (left-most).
+                    if (tmpMinMax > minMax)
+                    {
+                        minMax = tmpMinMax;
+                        index = node.Children.IndexOf(child);
+                        decision = (int)child.LastMove.GetImpl();
+                    }
+                }
+                decisionTree.MakeDecision(index);
+                return decision;
+            }
         }
 
         /// <summary>
@@ -276,10 +314,12 @@ namespace BoardGameCore
             }
         }
 
-        // TODO
+        /// <summary>
+        /// Resets recursively all the decision taken in the tree.
+        /// </summary>
         public override void Reset()
         {
-            throw new NotImplementedException();
+            decisionTree.ResetDecisions();
         }
     }
 }
