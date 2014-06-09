@@ -131,8 +131,8 @@ namespace BoardGameCore
                     if (childBoard.CheckVictory(squareMovedTo, 1))
                     {
                         // Base: GameOver, leaf node, evaluate the MiniMax value.
-                        ((MinMaxDecision)childNode.LastMove).SetValue(Fitness(
-                            childBoard));
+                        nodeValue = Fitness(childBoard);
+                        ((MinMaxDecision)childNode.LastMove).SetValue(nodeValue);
                     }
                     else
                     {
@@ -200,8 +200,8 @@ namespace BoardGameCore
                     if (childBoard.CheckVictory(squareMovedTo, -1))
                     {
                         // Base: GameOver, leaf node, evaluate the MiniMax value.
-                        ((MinMaxDecision)childNode.LastMove).SetValue(Fitness(
-                            childBoard));
+                        nodeValue = Fitness(childBoard);
+                        ((MinMaxDecision)childNode.LastMove).SetValue(nodeValue);
                     }
                     else
                     {
@@ -275,7 +275,7 @@ namespace BoardGameCore
                 int index = -1;
                 int minMax = Int32.MinValue;
                 int decision = -1;
-                foreach (DecisionTreeNode<Connect4Board> child in node.Children)
+                foreach (DecisionTreeNode<Connect4Board> child in node.Children.ToList())
                 {
                     int tmpMinMax = ((MinMaxDecision)child.LastMove).GetValue();
                     // Keep the oldest best value (left-most).
@@ -311,8 +311,9 @@ namespace BoardGameCore
                 state.Move(column, -1);
                 decisionTree = new DecisionTree<Connect4Board>(
                     state,
-                    new MinMaxDecision(null, MiniMax.Max)
+                    new MinMaxDecision(column, MiniMax.Max)
                     );
+                buildTree(decisionTree.GetRoot(), MiniMax.Max);
             }
         }
 

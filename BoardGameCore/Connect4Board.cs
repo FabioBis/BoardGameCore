@@ -340,7 +340,7 @@ namespace BoardGameCore
         /// </summary>
         public int GetWinner()
         {
-            return winner + winner * turnLeft;
+            return winner;
         }
     }
 }
