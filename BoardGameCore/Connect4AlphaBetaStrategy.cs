@@ -127,6 +127,7 @@ namespace BoardGameCore
                         new MinMaxDecision(column, MiniMax.Max);
                     DecisionTreeNode<Connect4Board> childNode = 
                         new DecisionTreeNode<Connect4Board>(childBoard, decision);
+                    node.AddChild(childNode);
                     if (childBoard.CheckVictory(squareMovedTo, 1))
                     {
                         // Base: GameOver, leaf node, evaluate the MiniMax value.
@@ -195,6 +196,7 @@ namespace BoardGameCore
                         new MinMaxDecision(column, MiniMax.Min);
                     DecisionTreeNode<Connect4Board> childNode =
                         new DecisionTreeNode<Connect4Board>(childBoard, decision);
+                    node.AddChild(childNode);
                     if (childBoard.CheckVictory(squareMovedTo, -1))
                     {
                         // Base: GameOver, leaf node, evaluate the MiniMax value.
