@@ -61,6 +61,28 @@ namespace BoardGameCore
         }
 
         /// <summary>
+        /// Copy constructor.
+        /// </summary>
+        public Connect4Core(Connect4Core src)
+        {
+            move = src.move;
+            movesDone = new int[42];
+            for (int i = 0; i < 42; i++)
+            {
+                if (i < src.movesDone.Length)
+                {
+                    movesDone[i] = src.movesDone[i];
+                }
+                else
+                {
+                    movesDone[i] = -1;
+                }
+                board = new Connect4Board(src.board);
+                turn = src.turn;
+            }
+        }
+
+        /// <summary>
         /// Getter method for the current player turn.
         /// </summary>
         /// <returns>The player turn.</returns>
@@ -110,6 +132,42 @@ namespace BoardGameCore
         }
 
         /// <summary>
+        /// This method perform a roll-back to the board state before
+        /// the last move done. Each call go back of one move at time.
+        /// </summary>
+        public void UndoLastMove()
+        {
+            if (move >= 0 && move <= 42)
+            {
+                int column = movesDone[move - 1] % 7;
+                board.UndoMove(column);
+                turn *= -1;
+                move--;
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        /// <summary>
+        /// This method implements the player move.
+        /// </summary>
+        /// <returns>The index of the square occupied on the board.</returns>
+        public int Move(int columnIndex, int turnIn)
+        {
+            if (Move(columnIndex))
+            {
+                return movesDone[move - 1];
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+
+        }
+
+        /// <summary>
         /// Returns the index of the square of the last move.
         /// </summary>
         /// <returns></returns>
@@ -125,6 +183,16 @@ namespace BoardGameCore
         {
             int lastTurn = turn * -1;
             return board.CheckVictory(movesDone[move - 1], lastTurn);
+        }
+
+        /// <summary>
+        /// Returns <code>true</code> if the last player represented by
+        /// <code>turnIn</code> who just moved to <code>squareMovedTo</code>
+        /// win the game.
+        /// </summary>
+        public bool CheckVictory(int squareMovedTo, int turnIn)
+        {
+            return board.CheckVictory(squareMovedTo, turnIn);
         }
 
         /// <summary>
@@ -160,9 +228,17 @@ namespace BoardGameCore
         /// <summary>
         /// Returns <code>true</code> if the game is over.
         /// </summary>
-        public bool IsOver()
+        public bool GameOver()
         {
             return board.GameOver();
+        }
+
+        /// <summary>
+        /// Returns a list of the avaliable column indexes.
+        /// </summary>
+        public List<int> GetFreeColumns()
+        {
+            return board.GetFreeColumns();
         }
     }
 }
