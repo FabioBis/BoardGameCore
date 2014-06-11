@@ -67,6 +67,28 @@ namespace BoardGameCore
         // C0 C1 ... C4
         public List<Stack<int>> freeByColumn;
 
+        /* Checkable diagonals. */
+        // "diagDLtoUR" + "X" where X is congruent square mod 4.
+        static List<int> diagDLtoUR2 = new List<int>() { 2, 6, 10 };
+        static List<int> diagDLtoUR3 = new List<int>() { 3, 7, 11, 15 };
+        static List<int> diagDLtoUR0 = new List<int>() { 4, 8, 12, 16 };
+        static List<int> diagDLtoUR1 = new List<int>() { 9, 13, 17 };
+        // "diagULtoDR" + "X" where X is congruent square mod 6.  
+        static List<int> diagULtoDR5 = new List<int>() { 5, 11, 17 };
+        static List<int> diagULtoDR0 = new List<int>() { 0, 6, 12, 18 };
+        static List<int> diagULtoDR1 = new List<int>() { 1, 7, 13, 19 };
+        static List<int> diagULtoDR2 = new List<int>() { 2, 8, 14 };
+
+        Dictionary<int, List<int>> diagsDLtoUR = new Dictionary<int, List<int>>() {
+            {3, diagDLtoUR3}, 
+            {0, diagDLtoUR0}, {1, diagDLtoUR1}, {2, diagDLtoUR2}
+        };
+
+        Dictionary<int, List<int>> diagsULtoDR = new Dictionary<int, List<int>>() {
+            {2, diagULtoDR2}, {1, diagULtoDR1},
+            {0, diagULtoDR0}, {5, diagULtoDR5}
+        };
+
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -195,12 +217,18 @@ namespace BoardGameCore
         /// </summary>
         private bool checkDiagULtoDR(int square, int turn)
         {
-            // Find the lowerbound.
-            int lowerBound = findLB(square, 6);
-            // Find the upperbound.
-            int upperBound = findUB(square, 6);
-            // Check for a connect 4 (step by 8).
-            return checkConnect3Winner(lowerBound, upperBound, 6, turn);
+            int x = square % 6;
+            List<int> diag;
+            if (diagsULtoDR.TryGetValue(x, out diag))
+            {
+                int lowerBound = diag.ElementAt(0);
+                int upperBound = diag.ElementAt(diag.Count - 1);
+                return checkConnect3Winner(lowerBound, upperBound, 6, turn);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -209,12 +237,18 @@ namespace BoardGameCore
         /// </summary>
         private bool checkDiagDLtoUR(int square, int turn)
         {
-            // Find the lowerbound.
-            int lowerBound = findLB(square, 4);
-            // Find the upperbound.
-            int upperBound = findUB(square, 4);
-            // Check for a connect 4 (step by 6).
-            return checkConnect3Winner(lowerBound, upperBound, 4, turn);
+            int x = square % 4;
+            List<int> diag;
+            if (diagsDLtoUR.TryGetValue(x, out diag))
+            {
+                int lowerBound = diag.ElementAt(0);
+                int upperBound = diag.ElementAt(diag.Count - 1);
+                return checkConnect3Winner(lowerBound, upperBound, 4, turn);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         /// <summary>
