@@ -49,6 +49,9 @@ namespace BoardGameCore
         private Connect4Core realBoardState;
         private Connect4Core strategyBoardState;
 
+        // The AI turn. Used to compute the fitness function.
+        int aiTurn;
+
         /// <summary>
         /// Constructor.
         /// This constructor builds a new strategy based on the given AI turn.
@@ -63,6 +66,7 @@ namespace BoardGameCore
             realBoardState = new Connect4Core();
             if (turn == 1)
             {
+                aiTurn = -1;
                 decisionTree = new DecisionTree(
                     new MinMaxDecision(null, MiniMax.Max)
                     );
@@ -70,6 +74,7 @@ namespace BoardGameCore
             }
             else if (turn == 2)
             {
+                aiTurn = 1;
                 decisionTree = new DecisionTree(
                     new MinMaxDecision(null, MiniMax.Min));
                 buildTree(decisionTree.GetRoot(), MiniMax.Min);
@@ -124,7 +129,7 @@ namespace BoardGameCore
                 foreach (int column in strategyBoardState.GetFreeColumns().ToList())
                 {
                     // Max moves filling the board using integer value 1.
-                    int squareMovedTo = strategyBoardState.Move(column, 1);
+                    int squareMovedTo = strategyBoardState.Move(column);
                     MinMaxDecision decision =
                         new MinMaxDecision(column, MiniMax.Max);
                     DecisionTreeNode childNode = 
@@ -153,10 +158,10 @@ namespace BoardGameCore
                             beta = min(beta, nodeValue);
                         }
                     }
+                    strategyBoardState.UndoLastMove();
                 }
             }
             ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
-            strategyBoardState.UndoLastMove();
             return nodeValue;
         }
 
@@ -194,7 +199,7 @@ namespace BoardGameCore
                 foreach (int column in strategyBoardState.GetFreeColumns().ToList())
                 {
                     // Min moves filling the board using integer value -1.
-                    int squareMovedTo = strategyBoardState.Move(column, -1);
+                    int squareMovedTo = strategyBoardState.Move(column);
                     MinMaxDecision decision =
                         new MinMaxDecision(column, MiniMax.Min);
                     DecisionTreeNode childNode =
@@ -223,10 +228,10 @@ namespace BoardGameCore
                             alpha = max(alpha, nodeValue);
                         }
                     }
+                    strategyBoardState.UndoLastMove();
                 }
             }
             ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
-            strategyBoardState.UndoLastMove();
             return nodeValue;
         }
 
@@ -249,7 +254,8 @@ namespace BoardGameCore
         /// <returns>The fitness (MinMax) value.</returns>
         private int Fitness(Connect4Board state)
         {
-            return state.GetWinner() + state.GetWinner() * state.GetTurnLeft();
+            return aiTurn *
+                (state.GetWinner() + state.GetWinner() * state.GetTurnLeft());
         }
 
         /// <summary>
@@ -315,6 +321,7 @@ namespace BoardGameCore
                 // The next decision tree state will be inconsistent.
                 // We have to rebuild the tree from the new state.
                 strategyBoardState = new Connect4Core(realBoardState);
+                aiTurn = strategyBoardState.GetNextTurn();
                 decisionTree = new DecisionTree(
                     new MinMaxDecision(column, MiniMax.Max)
                     );

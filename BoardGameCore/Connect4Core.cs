@@ -116,7 +116,7 @@ namespace BoardGameCore
         /// </summary>
         /// <param name="square">The index of the board column.</param>
         /// <returns>true if the move is valid, false otherwise.</returns>
-        public bool Move(int columnIndex)
+        public bool CheckAndMove(int columnIndex)
         {
             if (!board.IsValidMove(columnIndex))
             {
@@ -154,9 +154,9 @@ namespace BoardGameCore
         /// This method implements the player move.
         /// </summary>
         /// <returns>The index of the square occupied on the board.</returns>
-        public int Move(int columnIndex, int turnIn)
+        public int Move(int columnIndex)
         {
-            if (Move(columnIndex))
+            if (CheckAndMove(columnIndex))
             {
                 return movesDone[move - 1];
             }
