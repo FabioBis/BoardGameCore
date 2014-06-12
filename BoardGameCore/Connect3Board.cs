@@ -111,7 +111,6 @@ namespace BoardGameCore
                 board[i] = 0;
             }
         }
-
         
         /// <summary>
         /// Copy constructor.
@@ -188,6 +187,41 @@ namespace BoardGameCore
             }
             // turn value must be equal 1 or -1.
             throw new ArgumentException();
+        }
+
+        /// <summary>
+        /// This method perform a roll-back to the board state before
+        /// the last move done. Each call go back of one move at time.
+        /// </summary>
+        /// <param name="column">The column index of the move.</param>
+        public void UndoMove(int column)
+        {
+            if (turnLeft == 20)
+            {
+                // The board is empty, nothing to be done.
+                return;
+            }
+            else
+            {
+                int square = -1;
+                if (freeByColumn.ElementAt(column).Count == 0)
+                {
+                    square = column;
+                }
+                else
+                {
+                    int freeSquareInColumn = freeByColumn.ElementAt(column).Peek();
+                    if (freeSquareInColumn == (15 + column))
+                    {
+                        // The top of the stack contains a free square, invalid operation.
+                        throw new InvalidOperationException();
+                    }
+                    square = freeSquareInColumn + 5;
+                }
+                freeByColumn.ElementAt(column).Push(square);
+                board[square] = 0;
+                turnLeft += 1;
+            }
         }
 
         /// <summary>

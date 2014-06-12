@@ -61,6 +61,28 @@ namespace BoardGameCore
         }
 
         /// <summary>
+        /// Copy constructor.
+        /// </summary>
+        public Connect3Core(Connect3Core src)
+        {
+            move = src.move;
+            movesDone = new int[20];
+            for (int i = 0; i < 20; i++)
+            {
+                if (i < src.movesDone.Length)
+                {
+                    movesDone[i] = src.movesDone[i];
+                }
+                else
+                {
+                    movesDone[i] = -1;
+                }
+                board = new Connect3Board(src.board);
+                turn = src.turn;
+            }
+        }
+
+        /// <summary>
         /// Getter method for the current player turn.
         /// </summary>
         /// <returns>The player turn.</returns>
@@ -94,7 +116,7 @@ namespace BoardGameCore
         /// </summary>
         /// <param name="square">The index of the board column.</param>
         /// <returns>true if the move is valid, false otherwise.</returns>
-        public bool Move(int columnIndex)
+        public bool CheckAndMove(int columnIndex)
         {
             if (!board.IsValidMove(columnIndex))
             {
@@ -107,6 +129,42 @@ namespace BoardGameCore
                 move++;
                 return true;
             }
+        }
+
+        /// <summary>
+        /// This method perform a roll-back to the board state before
+        /// the last move done. Each call go back of one move at time.
+        /// </summary>
+        public void UndoLastMove()
+        {
+            if (move >= 0 && move <= 20)
+            {
+                int column = movesDone[move - 1] % 5;
+                board.UndoMove(column);
+                turn *= -1;
+                move--;
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        /// <summary>
+        /// This method implements the player move.
+        /// </summary>
+        /// <returns>The index of the square occupied on the board.</returns>
+        public int Move(int columnIndex)
+        {
+            if (CheckAndMove(columnIndex))
+            {
+                return movesDone[move - 1];
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+
         }
 
         /// <summary>
@@ -160,10 +218,17 @@ namespace BoardGameCore
         /// <summary>
         /// Returns <code>true</code> if the game is over.
         /// </summary>
-        public bool IsOver()
+        public bool GameOver()
         {
             return board.GameOver();
         }
 
+        /// <summary>
+        /// Returns a list of the avaliable column indexes.
+        /// </summary>
+        public List<int> GetFreeColumns()
+        {
+            return board.GetFreeColumns();
+        }
     }
 }

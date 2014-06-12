@@ -33,7 +33,13 @@ namespace BoardGameCore
     {
         
         // The decision tree for the strategy.
-        private DecisionTree<Connect3Board> decisionTree;
+        private DecisionTree decisionTree;
+
+        private Connect3Core realBoardState;
+        private Connect3Core strategyBoardState;
+
+        // The AI turn. Used to compute the fitness function.
+        int aiTurn;
 
         /// <summary>
         /// Constructor.
@@ -45,18 +51,20 @@ namespace BoardGameCore
         /// <param name="turn">The AI turn.</param>
         public Connect3AlphaBetaStrategy(int turn)
         {
+            strategyBoardState = new Connect3Core();
+            realBoardState = new Connect3Core();
             if (turn == 1)
             {
-                decisionTree = new DecisionTree<Connect3Board>(
-                    new Connect3Board(),
+                aiTurn = -1;
+                decisionTree = new DecisionTree(
                     new MinMaxDecision(null, MiniMax.Max)
                     );
                 buildTree(decisionTree.GetRoot(), MiniMax.Max);
             }
             else if (turn == 2)
             {
-                decisionTree = new DecisionTree<Connect3Board>(
-                    new Connect3Board(),
+                aiTurn = 1;
+                decisionTree = new DecisionTree(
                     new MinMaxDecision(null, MiniMax.Min));
                 buildTree(decisionTree.GetRoot(), MiniMax.Min);
             }
@@ -73,7 +81,7 @@ namespace BoardGameCore
         /// <param name="node">The node to be built.</param>
         /// <param name="type">The MiniMax type of this node.</param>
         private void buildTree(
-            DecisionTreeNode<Connect3Board> node,
+            DecisionTreeNode node,
             MiniMax type)
         {
             int alpha = Int32.MinValue;
@@ -95,32 +103,31 @@ namespace BoardGameCore
         /// <param name="alpha">The current best Max value.</param>
         /// <param name="beta">The current best Min value.</param>
         private int buildMinNode(
-            DecisionTreeNode<Connect3Board> node,
+            DecisionTreeNode node,
             ref int alpha,
             ref int beta)
         {
             int nodeValue = Int32.MaxValue;
-            if (node.Value.GameOver())
+            if (strategyBoardState.GameOver())
             {
                 // Base: leaf node, evaluate the MiniMax value.
-                nodeValue = Fitness(node.Value);
+                nodeValue = Fitness(strategyBoardState.GetBoard());
             }
             else
             {
-                foreach (int column in node.Value.GetFreeColumns().ToList())
+                foreach (int column in strategyBoardState.GetFreeColumns().ToList())
                 {
-                    Connect3Board childBoard = new Connect3Board(node.Value);
                     // Max moves filling the board using integer value 1.
-                    int squareMovedTo = childBoard.Move(column, 1);
+                    int squareMovedTo = strategyBoardState.Move(column);
                     MinMaxDecision decision =
                         new MinMaxDecision(column, MiniMax.Max);
-                    DecisionTreeNode<Connect3Board> childNode = 
-                        new DecisionTreeNode<Connect3Board>(childBoard, decision);
+                    DecisionTreeNode childNode = 
+                        new DecisionTreeNode(decision);
                     node.AddChild(childNode);
-                    if (childBoard.CheckVictory(squareMovedTo, 1))
+                    if (strategyBoardState.CheckVictory())
                     {
                         // Base: GameOver, leaf node, evaluate the MiniMax value.
-                        nodeValue = Fitness(childBoard);
+                        nodeValue = Fitness(strategyBoardState.GetBoard());
                         ((MinMaxDecision)childNode.LastMove).SetValue(nodeValue);
                     }
                     else
@@ -128,10 +135,11 @@ namespace BoardGameCore
                         // Recursive: build the child.
                         int value = buildMaxNode(childNode, ref alpha, ref beta);
                         nodeValue = min(nodeValue, value);
-                        ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
                         if (nodeValue <= alpha)
                         {
                             // Pruned branch.
+                            ((MinMaxDecision)node.LastMove).SetValue(value);
+                            strategyBoardState.UndoLastMove();
                             return value;
                         }
                         else
@@ -139,6 +147,7 @@ namespace BoardGameCore
                             beta = min(beta, nodeValue);
                         }
                     }
+                    strategyBoardState.UndoLastMove();
                 }
             }
             ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
@@ -164,32 +173,31 @@ namespace BoardGameCore
         /// <param name="alpha">The best Max value.</param>
         /// <param name="beta">The best Min value.</param>
         private int buildMaxNode(
-            DecisionTreeNode<Connect3Board> node,
+            DecisionTreeNode node,
             ref int alpha,
             ref int beta)
         {
             int nodeValue = Int32.MinValue;
-            if (node.Value.GameOver())
+            if (strategyBoardState.GameOver())
             {
                 // Base: leaf node, evaluate the MiniMax value.
-                nodeValue = Fitness(node.Value);
+                nodeValue = Fitness(strategyBoardState.GetBoard());
             }
             else
             {
-                foreach (int column in node.Value.GetFreeColumns().ToList())
+                foreach (int column in strategyBoardState.GetFreeColumns().ToList())
                 {
-                    Connect3Board childBoard = new Connect3Board(node.Value);
                     // Min moves filling the board using integer value -1.
-                    int squareMovedTo = childBoard.Move(column, -1);
+                    int squareMovedTo = strategyBoardState.Move(column);
                     MinMaxDecision decision =
                         new MinMaxDecision(column, MiniMax.Min);
-                    DecisionTreeNode<Connect3Board> childNode =
-                        new DecisionTreeNode<Connect3Board>(childBoard, decision);
+                    DecisionTreeNode childNode =
+                        new DecisionTreeNode(decision);
                     node.AddChild(childNode);
-                    if (childBoard.CheckVictory(squareMovedTo, -1))
+                    if (strategyBoardState.CheckVictory())
                     {
                         // Base: GameOver, leaf node, evaluate the MiniMax value.
-                        nodeValue = Fitness(childBoard);
+                        nodeValue = Fitness(strategyBoardState.GetBoard());
                         ((MinMaxDecision)childNode.LastMove).SetValue(nodeValue);
                     }
                     else
@@ -197,10 +205,11 @@ namespace BoardGameCore
                         // Recursive: build the child.
                         int value = buildMinNode(childNode, ref alpha, ref beta);
                         nodeValue = max(nodeValue, value);
-                        ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
                         if (nodeValue >= beta)
                         {
                             // Pruned branch.
+                            ((MinMaxDecision)node.LastMove).SetValue(value);
+                            strategyBoardState.UndoLastMove();
                             return value;
                         }
                         else
@@ -208,6 +217,7 @@ namespace BoardGameCore
                             alpha = max(alpha, nodeValue);
                         }
                     }
+                    strategyBoardState.UndoLastMove();
                 }
             }
             ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
@@ -233,7 +243,8 @@ namespace BoardGameCore
         /// <returns>The fitness (MinMax) value.</returns>
         private int Fitness(Connect3Board state)
         {
-            return state.GetWinner() + state.GetWinner() * state.GetTurnLeft();
+            return aiTurn *
+                (state.GetWinner() + state.GetWinner() * state.GetTurnLeft());
         }
 
         /// <summary>
@@ -242,11 +253,13 @@ namespace BoardGameCore
         /// <returns>The column index of the game board to move in.</returns>
         public override int OwnMove()
         {
-            return makeDecisionRec(decisionTree.GetRoot());
+            int column = makeDecisionRec(decisionTree.GetRoot());
+            realBoardState.Move(column);
+            return column;
         }
 
         private int makeDecisionRec(
-            DecisionTreeNode<Connect3Board> node)
+            DecisionTreeNode node)
         {
             if (node.GetBranches() == 0)
             {
@@ -264,7 +277,7 @@ namespace BoardGameCore
                 int index = -1;
                 int minMax = Int32.MinValue;
                 int decision = -1;
-                foreach (DecisionTreeNode<Connect3Board> child in node.Children.ToList())
+                foreach (DecisionTreeNode child in node.Children.ToList())
                 {
                     int tmpMinMax = ((MinMaxDecision)child.LastMove).GetValue();
                     // Keep the oldest best value (left-most).
@@ -285,6 +298,7 @@ namespace BoardGameCore
         /// </summary>
         public override void OpponentMove(int column)
         {
+            realBoardState.Move(column);
             MinMaxDecision decision = new MinMaxDecision(column, MiniMax.Min);
             if (decisionTree.NextDecisionPlanned(decision))
             {
@@ -295,11 +309,9 @@ namespace BoardGameCore
             {
                 // The next decision tree state will be inconsistent.
                 // We have to rebuild the tree from the new state.
-                Connect3Board state =
-                    decisionTree.GetNextChoicePoint().Value;
-                state.Move(column, -1);
-                decisionTree = new DecisionTree<Connect3Board>(
-                    state,
+                strategyBoardState = new Connect3Core(realBoardState);
+                aiTurn = strategyBoardState.GetNextTurn();
+                decisionTree = new DecisionTree(
                     new MinMaxDecision(column, MiniMax.Max)
                     );
                 buildTree(decisionTree.GetRoot(), MiniMax.Max);
