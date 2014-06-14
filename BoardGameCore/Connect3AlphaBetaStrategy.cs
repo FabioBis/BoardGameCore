@@ -107,7 +107,7 @@ namespace BoardGameCore
             ref int alpha,
             ref int beta)
         {
-            int nodeValue = 0;
+            int nodeValue = int.MaxValue;
             if (strategyBoardState.GameOver())
             {
                 // Base: leaf node, evaluate the MiniMax value.
@@ -128,6 +128,10 @@ namespace BoardGameCore
                     nodeValue = min(nodeValue, value);
                     if (nodeValue <= alpha)
                     {
+                        if (nodeValue == int.MinValue || nodeValue == int.MaxValue)
+                        {
+                            ;
+                        }
                         // Pruned branch.
                         ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
                         strategyBoardState.UndoLastMove();
@@ -175,7 +179,7 @@ namespace BoardGameCore
             ref int alpha,
             ref int beta)
         {
-            int nodeValue = 0;
+            int nodeValue = int.MinValue;
             if (strategyBoardState.GameOver())
             {
                 // Base: leaf node, evaluate the MiniMax value.
@@ -196,6 +200,10 @@ namespace BoardGameCore
                     nodeValue = max(nodeValue, value);
                     if (nodeValue >= beta)
                     {
+                        if (nodeValue == int.MinValue || nodeValue == int.MaxValue)
+                        {
+                            ;
+                        }
                         // Pruned branch.
                         ((MinMaxDecision)node.LastMove).SetValue((nodeValue));
                         strategyBoardState.UndoLastMove();

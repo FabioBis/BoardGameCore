@@ -49,7 +49,7 @@ namespace BoardGameCore
         // The number of turn to fill the board.
         int turnLeft;
 
-        // The winner: -1, 1, or 0 (no winner).
+        // The winner: -1 (first player), 1 (second player), or 0 (no winner).
         int winner = 0;
 
         // List of free square.
@@ -210,6 +210,7 @@ namespace BoardGameCore
             else
             {
                 gameOver = false;
+                winner = 0;
                 int square = -1;
                 if (freeByColumn.ElementAt(column).Count == 0)
                 {
