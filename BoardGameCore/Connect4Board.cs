@@ -219,6 +219,7 @@ namespace BoardGameCore
                 int square = -1;
                 if (freeByColumn.ElementAt(column).Count == 0)
                 {
+                    freeColumns.Add(column);
                     square = column;
                 }
                 else

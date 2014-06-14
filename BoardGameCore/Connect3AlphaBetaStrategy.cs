@@ -38,7 +38,7 @@ namespace BoardGameCore
         private Connect3Core realBoardState;
         private Connect3Core strategyBoardState;
 
-        // The AI turn. Used to compute the fitness function.
+        // The AI turn. Used to evaluate the fitness function.
         int aiTurn;
 
         /// <summary>
@@ -128,17 +128,9 @@ namespace BoardGameCore
                     nodeValue = min(nodeValue, value);
                     if (nodeValue <= alpha)
                     {
-                        if (nodeValue == int.MinValue || nodeValue == int.MaxValue)
-                        {
-                            ;
-                        }
                         // Pruned branch.
                         ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
                         strategyBoardState.UndoLastMove();
-                        if (nodeValue == int.MaxValue)
-                        {
-                            ;
-                        }
                         return nodeValue;
                     }
                     else
@@ -149,10 +141,6 @@ namespace BoardGameCore
                 }
             }
             ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
-            if (nodeValue == int.MaxValue)
-            {
-                ;
-            }
             return nodeValue;
         }
 
@@ -200,10 +188,6 @@ namespace BoardGameCore
                     nodeValue = max(nodeValue, value);
                     if (nodeValue >= beta)
                     {
-                        if (nodeValue == int.MinValue || nodeValue == int.MaxValue)
-                        {
-                            ;
-                        }
                         // Pruned branch.
                         ((MinMaxDecision)node.LastMove).SetValue((nodeValue));
                         strategyBoardState.UndoLastMove();
