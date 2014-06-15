@@ -37,7 +37,7 @@ namespace BoardGameCore
         private int turn;
 
         // The current move number.
-        private int move;
+        private int moves;
 
         // The array of game moves.
         // At even indexes are stored first player moves, at odd indexes are
@@ -50,7 +50,7 @@ namespace BoardGameCore
         /// </summary>
         public Connect3Core()
         {
-            move = 0;
+            moves = 0;
             movesDone = new int[20];
             for (int i = 0; i < 20; i++)
             {
@@ -65,7 +65,7 @@ namespace BoardGameCore
         /// </summary>
         public Connect3Core(Connect3Core src)
         {
-            move = src.move;
+            moves = src.moves;
             movesDone = new int[20];
             for (int i = 0; i < 20; i++)
             {
@@ -124,9 +124,9 @@ namespace BoardGameCore
             }
             else
             {
-                movesDone[move] = board.Move(columnIndex, turn);
+                movesDone[moves] = board.Move(columnIndex, turn);
                 turn *= -1;
-                move++;
+                moves++;
                 return true;
             }
         }
@@ -137,12 +137,13 @@ namespace BoardGameCore
         /// </summary>
         public void UndoLastMove()
         {
-            if (move >= 0 && move <= 20)
+            if (moves > 0 && moves <= 20)
             {
-                int column = movesDone[move - 1] % 5;
+                int column = movesDone[moves - 1] % 5;
                 board.UndoMove(column);
                 turn *= -1;
-                move--;
+                moves--;
+                movesDone[moves] = -1;
             }
             else
             {
@@ -158,7 +159,7 @@ namespace BoardGameCore
         {
             if (CheckAndMove(columnIndex))
             {
-                return movesDone[move - 1];
+                return movesDone[moves - 1];
             }
             else
             {
@@ -173,7 +174,7 @@ namespace BoardGameCore
         /// <returns></returns>
         public int GetLastSquareMove()
         {
-            return movesDone[move - 1];
+            return movesDone[moves - 1];
         }
 
         /// <summary>
@@ -182,7 +183,7 @@ namespace BoardGameCore
         public bool CheckVictory()
         {
             int lastTurn = turn * -1;
-            return board.CheckVictory(movesDone[move - 1], lastTurn);
+            return board.CheckVictory(movesDone[moves - 1], lastTurn);
         }
 
         /// <summary>
@@ -197,9 +198,9 @@ namespace BoardGameCore
             bool thereIsAWinner = CheckVictory();
             if (board.GameOver())
             {
+                // The game is over.
                 if (thereIsAWinner)
                 {
-                    // The game is over.
                     return 2 * turn * -1;
                 }
                 else
