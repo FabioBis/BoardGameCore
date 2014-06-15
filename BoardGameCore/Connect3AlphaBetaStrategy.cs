@@ -88,11 +88,11 @@ namespace BoardGameCore
             int beta = Int32.MaxValue;
             if (type.Equals(MiniMax.Max))
             {
-                buildMaxNode(node, ref alpha, ref beta);
+                buildMaxNode(node, alpha, beta);
             }
             else
             {
-                buildMinNode(node, ref alpha, ref beta);
+                buildMinNode(node, alpha, beta);
             }
         }
 
@@ -104,8 +104,8 @@ namespace BoardGameCore
         /// <param name="beta">The current best Min value.</param>
         private int buildMinNode(
             DecisionTreeNode node,
-            ref int alpha,
-            ref int beta)
+            int alpha,
+            int beta)
         {
             int nodeValue = int.MaxValue;
             if (strategyBoardState.GameOver())
@@ -124,8 +124,8 @@ namespace BoardGameCore
                     DecisionTreeNode childNode =
                         new DecisionTreeNode(decision);
                     node.AddChild(childNode);
-                    int value = buildMaxNode(childNode, ref alpha, ref beta);
-                    nodeValue = min(nodeValue, value);
+                    int value = buildMaxNode(childNode, alpha, beta);
+                    nodeValue = Decision.Min(nodeValue, value);
                     if (nodeValue <= alpha)
                     {
                         // Pruned branch.
@@ -135,25 +135,13 @@ namespace BoardGameCore
                     }
                     else
                     {
-                        beta = min(beta, nodeValue);
+                        beta = Decision.Min(beta, nodeValue);
                     }
                     strategyBoardState.UndoLastMove();
                 }
             }
             ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
             return nodeValue;
-        }
-
-        private int min(int a, int b)
-        {
-            if (a <= b)
-            {
-                return a;
-            }
-            else
-            {
-                return b;
-            }
         }
 
         /// <summary>
@@ -164,8 +152,8 @@ namespace BoardGameCore
         /// <param name="beta">The best Min value.</param>
         private int buildMaxNode(
             DecisionTreeNode node,
-            ref int alpha,
-            ref int beta)
+            int alpha,
+            int beta)
         {
             int nodeValue = int.MinValue;
             if (strategyBoardState.GameOver())
@@ -184,8 +172,8 @@ namespace BoardGameCore
                     DecisionTreeNode childNode =
                         new DecisionTreeNode(decision);
                     node.AddChild(childNode);
-                    int value = buildMinNode(childNode, ref alpha, ref beta);
-                    nodeValue = max(nodeValue, value);
+                    int value = buildMinNode(childNode, alpha, beta);
+                    nodeValue = Decision.Max(nodeValue, value);
                     if (nodeValue >= beta)
                     {
                         // Pruned branch.
@@ -195,25 +183,13 @@ namespace BoardGameCore
                     }
                     else
                     {
-                        alpha = max(alpha, nodeValue);
+                        alpha = Decision.Max(alpha, nodeValue);
                     }
                     strategyBoardState.UndoLastMove();
                 }
             }
             ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
             return nodeValue;
-        }
-
-        private int max(int a, int b)
-        {
-            if (a <= b)
-            {
-                return b;
-            }
-            else
-            {
-                return a;
-            }
         }
 
         /// <summary>
