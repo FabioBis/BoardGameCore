@@ -21,7 +21,6 @@
 //    distribution.
 //
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -134,7 +133,6 @@ namespace BoardGameCore
             turnLeft = source.turnLeft;
             board = new int[42];
             freeColumns = new List<int>(source.freeColumns);
-            //freeByColumn = new List<Stack<int>>(source.freeByColumn);
             freeByColumn = new List<Stack<int>>();
             foreach (Stack<int> column in source.freeByColumn.ToList())
             {
@@ -172,7 +170,8 @@ namespace BoardGameCore
         internal bool IsValidMove(int columnIndex)
         {
             return (turnLeft > 0
-                && freeByColumn.ElementAt(columnIndex).Count != 0);
+                && freeByColumn.ElementAt(columnIndex).Count != 0
+                && gameOver == false);
         }
 
         /// <summary>
@@ -185,6 +184,10 @@ namespace BoardGameCore
         /// <returns>The index of the square occupied on the board.</returns>
         internal int Move(int column, int turn)
         {
+            if (gameOver)
+            {
+                throw new InvalidOperationException();
+            }
             if (turn == 1 || turn == -1)
 	        {
                 // Assuming the move is sound.
@@ -196,6 +199,7 @@ namespace BoardGameCore
                 }
                 board[square] = turn;
                 turnLeft -= 1;
+                CheckVictory(square, turn);
                 return square;
 	        }
             // turn value must be equal 1 or -1.
@@ -216,6 +220,8 @@ namespace BoardGameCore
             }
             else
             {
+                gameOver = false;
+                winner = 0;
                 int square = -1;
                 if (freeByColumn.ElementAt(column).Count == 0)
                 {
