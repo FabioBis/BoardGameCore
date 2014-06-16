@@ -425,5 +425,207 @@ namespace BoardGameCore
         {
             return winner;
         }
+
+        /// <summary>
+        /// Assuming <code>turn</code> represents the last player who moved,
+        /// evaluates the current board state.
+        /// 
+        /// This method implements a
+        /// function that compute an heuristic evaluation of the board state,
+        /// returning a positive value if the current player is near the victory,
+        /// or a negative one if the opponent will win with the next move.
+        /// </summary>
+        /// <returns>An heuristic evaluation of the board state.</returns>
+        internal int Evaluate(int turn)
+        {
+            int result = evaluateOpponent(turn*-1);
+            if (result < 0)
+            {
+                return result;
+            }
+            else
+            {
+                result += evaluateRows(turn);
+                result += evaluateColumns(turn);
+                result += evaluateDiags(turn);
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Returns a negative value if the opponent will win with the next move.
+        /// </summary>
+        private int evaluateOpponent(int oppTurn)
+        {
+            int result = 0;
+            result -= evaluateRows(oppTurn);
+            result -= evaluateColumns(oppTurn);
+            result -= evaluateDiags(oppTurn);
+            return result;
+        }
+
+        private int evaluateColumns(int turn)
+        {
+            int result = 0;
+            for (int i = 0; i < 7; i++)
+            {
+                result += evaluateColumn(i, turn);
+            }
+            return result;
+        }
+
+        private int evaluateColumn(int lower, int turn)
+        {
+            int upper = lower + 36;
+            int pre = 0;
+            int three = 0;
+            int result = 0;
+            for (int square = lower; square < upper; )
+            {
+                if (board[square] == turn)
+                {
+                    three++;
+                    if (three == 3)
+                    {
+                        if (pre == 1)
+                        {
+                            result++;
+                        }
+                    }
+                }
+                else if (board[square] == 0)
+                {
+                    pre = 1;
+                    if (three == 3)
+                    {
+                        result++;
+                    }
+                    else
+                    {
+                        three = 0;
+                    }
+                }
+                else
+                {
+                    pre = 0;
+                    three = 0;
+                }
+                square += 7;
+            }
+            return result;
+        }
+
+        private int evaluateRows(int turn)
+        {
+            int result = 0;
+            result += evaluateRow(0, turn);
+            result += evaluateRow(7, turn);
+            result += evaluateRow(14, turn);
+            result += evaluateRow(21, turn);
+            result += evaluateRow(28, turn);
+            result += evaluateRow(35, turn);
+            return result;
+        }
+
+        private int evaluateRow(int lower, int turn)
+        {
+            int upper = lower + 7;
+            int pre = 0;
+            int three = 0;
+            int result = 0;
+            for (int square = lower; square < upper; square++)
+            {
+                if (board[square] == turn)
+                {
+                    three++;
+                    if (three == 3)
+                    {
+                        if (pre == 1)
+                        {
+                            result++;
+                        }
+                    }
+                }
+                else if (board[square] == 0)
+                {
+                    pre = 1;
+                    if (three == 3)
+                    {
+                        result++;
+                    }
+                    else
+                    {
+                        three = 0;
+                    }
+                }
+                else
+                {
+                    pre = 0;
+                    three = 0;
+                }
+            }
+            return result;
+        }
+
+        private int evaluateDiags(int turn)
+        {
+            int result = 0;
+            for (int i = 0; i < 6; i++)
+            {
+                List<int> diag;
+                if (diagsDLtoUR.TryGetValue(i, out diag))
+                {
+                    result += evaluateDiag(diag, turn);
+                }
+            }
+            for (int j = 0; j < 8; j++)
+            {
+                List<int> diag;
+                if (diagsULtoDR.TryGetValue(j, out diag))
+                {
+                    result += evaluateDiag(diag, turn);
+                }
+            }
+            return result;
+        }
+
+        private int evaluateDiag(List<int> diag, int turn)
+        {
+            int pre = 0;
+            int three = 0;
+            int result = 0;
+            foreach (int square in diag)
+            {
+                if (board[square] == turn)
+                {
+                    three++;
+                    if (three == 3)
+	                {
+                        if (pre == 1)
+                        {
+                            result++;
+                        } 
+	                }
+                }
+                else if (board[square] == 0)
+                {
+                    pre = 1;
+                    if (three == 3)
+                    {
+                        result++;
+                    }
+                    else
+                    {
+                        three = 0;
+                    }
+                }
+                else
+                {
+                    pre = 0;
+                    three = 0;
+                }
+            }
+            return result;
+        }
     }
 }
