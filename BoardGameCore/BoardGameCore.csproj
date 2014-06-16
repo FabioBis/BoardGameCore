@@ -47,6 +47,7 @@
     <Compile Include="Connect3AlphaBetaStrategy.cs" />
     <Compile Include="Connect3Board.cs" />
     <Compile Include="Connect3Core.cs" />
+    <Compile Include="Connect4AlphaBetaLimitedStrategy.cs" />
     <Compile Include="Connect4AlphaBetaStrategy.cs" />
     <Compile Include="Connect4Board.cs" />
     <Compile Include="Connect4Core.cs" />

@@ -1,27 +1,4 @@
-﻿//
-// Copyright (c) 2014 Fabio Biselli - fabio.biselli.80@gmail.com
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-//    1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would be
-//    appreciated but is not required.
-//
-//    2. Altered source versions must be plainly marked as such, and must not be
-//    misrepresented as being the original software.
-//
-//    3. This notice may not be removed or altered from any source
-//    distribution.
-//
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,33 +6,10 @@ using SharpSearch;
 
 namespace BoardGameCore
 {
-    /// <summary>
-    /// This class implements a board game strategy for the
-    /// Connect Four game. The strategy is based the Alpha-Beta
-    /// pruning MiniMax variant.
-    /// 
-    /// Because the Alpha-Beta algorithm assumes that both players are
-    /// optimal (and this is not the case), we have to avoid the case
-    /// where the opponent (Min) moves into a game state discared from
-    /// the tree by the algorithm. To fix this behavior, once the player
-    /// make such a move, we discard the current tree and build a new one
-    /// from the new game state.
-    /// </summary>
-    public class Connect4AlphaBetaStrategy : BoardGameStrategy
+    public class Connect4AlphaBetaLimitedStrategy : Connect4AlphaBetaStrategy
     {
-        // The decision tree for the strategy.
-        protected DecisionTree decisionTree;
+        int depth;
 
-        protected Connect4Core realBoardState;
-        protected Connect4Core strategyBoardState;
-
-        // The AI turn. Used to compute the fitness function.
-        protected int aiTurn;
-
-        public Connect4AlphaBetaStrategy()
-        {
-
-        }
         /// <summary>
         /// Constructor.
         /// This constructor builds a new strategy based on the given AI turn.
@@ -64,8 +18,9 @@ namespace BoardGameCore
         /// an Argument exception is raised..
         /// </summary>
         /// <param name="turn">The AI turn.</param>
-        public Connect4AlphaBetaStrategy(int turn)
+        public Connect4AlphaBetaLimitedStrategy(int turn)
         {
+            depth = 20;
             strategyBoardState = new Connect4Core();
             realBoardState = new Connect4Core();
             if (turn == 1)
@@ -122,11 +77,17 @@ namespace BoardGameCore
             int alpha,
             int beta)
         {
+            depth--;
             int nodeValue = Int32.MaxValue;
             if (strategyBoardState.GameOver())
             {
                 // Base: leaf node, evaluate the MiniMax value.
                 nodeValue = Fitness(strategyBoardState.GetBoard());
+            }
+            else if (depth == 0)
+            {
+                // Base: max depth reached.
+                nodeValue = EvaluateState(strategyBoardState.GetBoard(), -1*aiTurn);
             }
             else
             {
@@ -156,6 +117,7 @@ namespace BoardGameCore
                 }
             }
             ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
+            depth++;
             return nodeValue;
         }
 
@@ -170,11 +132,17 @@ namespace BoardGameCore
             int alpha,
             int beta)
         {
+            depth--;
             int nodeValue = Int32.MinValue;
             if (strategyBoardState.GameOver())
             {
                 // Base: leaf node, evaluate the MiniMax value.
                 nodeValue = Fitness(strategyBoardState.GetBoard());
+            }
+            else if (depth == 0)
+            {
+                // Base: max depth reached.
+                nodeValue = EvaluateState(strategyBoardState.GetBoard(), aiTurn);
             }
             else
             {
@@ -204,64 +172,16 @@ namespace BoardGameCore
                 }
             }
             ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
+            depth++;
             return nodeValue;
         }
 
-        /// <summary>
-        /// Computes the MinMax value related to the given board final state.
+        // <summary>
+        /// Evaluates the MinMax value related to the given board (non-final) state.
         /// </summary>
-        /// <param name="state">The board state.</param>
-        /// <returns>The fitness (MinMax) value.</returns>
-        protected int Fitness(Connect4Board state)
+        private int EvaluateState(Connect4Board state, int turn)
         {
-            return aiTurn *
-                (state.GetWinner() + state.GetWinner() * (state.GetTurnLeft()^2));
-        }
-
-        /// <summary>
-        /// The AI player move.
-        /// </summary>
-        /// <returns>The column index of the game board to move in.</returns>
-        public override int OwnMove()
-        {
-            int column = makeDecisionRec(decisionTree.GetRoot());
-            realBoardState.Move(column);
-            return column;
-        }
-
-        private int makeDecisionRec(
-            DecisionTreeNode node)
-        {
-            if (node.GetBranches() == 0)
-            {
-                // Base: this is a leaf only one decision expected.
-                return (int)node.LastMove.GetImpl();
-            }
-            else if (node.DecisionMade())
-            {
-                // Recursive: only child, no decision needed at this level.
-                return makeDecisionRec(node.GetChoosenChildren());
-            }
-            else
-            {
-                // Base: multiple branches, the best decision is needed.
-                int index = -1;
-                int minMax = Int32.MinValue;
-                int decision = -1;
-                foreach (DecisionTreeNode child in node.Children.ToList())
-                {
-                    int tmpMinMax = ((MinMaxDecision)child.LastMove).GetValue();
-                    // Keep the oldest best value (left-most).
-                    if (tmpMinMax > minMax)
-                    {
-                        minMax = tmpMinMax;
-                        index = node.Children.IndexOf(child);
-                        decision = (int)child.LastMove.GetImpl();
-                    }
-                }
-                decisionTree.MakeDecision(index);
-                return decision;
-            }
+            return state.Evaluate(turn) * state.GetTurnLeft();
         }
 
         /// <summary>
@@ -287,14 +207,6 @@ namespace BoardGameCore
                     );
                 buildTree(decisionTree.GetRoot(), MiniMax.Max);
             }
-        }
-
-        /// <summary>
-        /// Resets recursively all the decision taken in the tree.
-        /// </summary>
-        public override void Reset()
-        {
-            decisionTree.ResetDecisions();
         }
     }
 }
