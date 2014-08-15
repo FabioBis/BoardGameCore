@@ -123,6 +123,47 @@ namespace BoardGameCore
                 board[i] = 0;
             }
         }
+        
+        /// <summary>
+        /// Builds a new board from an array representing a sequence of
+        /// moves. Constructor for testing purpose only.
+        /// </summary>
+        /// <param name="movesArray"></param>
+        public Connect4Board(int[] movesArray)
+        {
+        	freeColumns = new List<int>();
+            freeByColumn = new List<Stack<int>>();
+            for (int i = 0; i < 7; i++)
+            {
+                freeByColumn.Add(new Stack<int>());
+                freeColumns.Add(i);
+            }
+            turnLeft = 42;
+            board = new int[42];
+            for (int i = 0; i < 42; i++)
+            {
+                // Fill the stack in position (i modulo 7) with i.
+                // i.e. last column in position 6 will contains (i = 7*k + i mod 7):
+                // 41 = 7*5 + 6, 34 = 7*4 + 6, 27 = 7*3 + 6, etc...
+                freeByColumn.ElementAt((i % 7)).Push(i);                
+                board[i] = 0;
+            }
+           	int j = 0;
+           	int turn = -1;
+            while (!gameOver && j < movesArray.Length) {
+           		int square = freeByColumn.ElementAt(movesArray[j]).Pop();
+                if (freeByColumn.ElementAt(movesArray[j]).Count == 0)
+                {
+                    // The column is full, no more moves available.
+                    freeColumns.Remove(movesArray[j]);
+                }
+                board[square] = turn;
+                turnLeft -= 1;
+                CheckVictory(square, turn);
+                j++;
+                turn *= -1;
+            }
+        }        
 
         /// <summary>
         /// Copy constructor.
@@ -430,10 +471,10 @@ namespace BoardGameCore
         /// Assuming <code>turn</code> represents the last player who moved,
         /// evaluates the current board state.
         /// 
-        /// This method implements a
-        /// function that compute an heuristic evaluation of the board state,
-        /// returning a positive value if the current player is near the victory,
-        /// or a negative one if the opponent will win with the next move.
+        /// This method implements a function that compute an heuristic
+        /// evaluation of the board state, returning a positive value if
+        /// the current player is near to the victory, or a negative value
+        /// if the opponent will win with the next move.
         /// </summary>
         /// <returns>An heuristic evaluation of the board state.</returns>
         internal int Evaluate(int turn)
@@ -553,10 +594,7 @@ namespace BoardGameCore
                     {
                         result++;
                     }
-                    else
-                    {
-                        three = 0;
-                    }
+                    three = 0;
                 }
                 else
                 {
