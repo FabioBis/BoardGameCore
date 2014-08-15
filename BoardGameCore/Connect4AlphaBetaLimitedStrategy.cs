@@ -20,7 +20,7 @@ namespace BoardGameCore
         /// <param name="turn">The AI turn.</param>
         public Connect4AlphaBetaLimitedStrategy(int turn)
         {
-            depth = 20;
+            depth = 13;
             strategyBoardState = new Connect4Core();
             realBoardState = new Connect4Core();
             if (turn == 1)
@@ -107,6 +107,7 @@ namespace BoardGameCore
                         // Pruned branch.
                         ((MinMaxDecision)node.LastMove).SetValue(value);
                         strategyBoardState.UndoLastMove();
+                        depth++;
                         return value;
                     }
                     else
@@ -144,7 +145,7 @@ namespace BoardGameCore
                 // Base: max depth reached.
                 nodeValue = EvaluateState(strategyBoardState.GetBoard(), aiTurn);
             }
-            else
+            else if (strategyBoardState.GetBoard().Evaluate(aiTurn) >= 0)
             {
                 foreach (int column in strategyBoardState.GetFreeColumns().ToList())
                 {
@@ -162,6 +163,7 @@ namespace BoardGameCore
                         // Pruned branch.
                         ((MinMaxDecision)node.LastMove).SetValue(value);
                         strategyBoardState.UndoLastMove();
+                        depth++;
                         return value;
                     }
                     else
@@ -170,6 +172,13 @@ namespace BoardGameCore
                     }
                     strategyBoardState.UndoLastMove();
                 }
+            }
+            else
+            {
+                // Cut: the opponent will win in one move. Here we assume that the
+                // opponent is an optimal player, so the tree is pruned  to allow
+                // a more depth search.
+                nodeValue = EvaluateState(strategyBoardState.GetBoard(), aiTurn);
             }
             ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
             depth++;
