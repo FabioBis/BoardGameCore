@@ -56,6 +56,7 @@ namespace BoardGameCore
         {
 
         }
+
         /// <summary>
         /// Constructor.
         /// This constructor builds a new strategy based on the given AI turn.

@@ -185,12 +185,21 @@ namespace BoardGameCore
             return nodeValue;
         }
 
-        // <summary>
+        /// <summary>
         /// Evaluates the MinMax value related to the given board (non-final) state.
         /// </summary>
         private int EvaluateState(Connect4Board state, int turn)
         {
-            return state.Evaluate(turn) * state.GetTurnLeft();
+            int coef = state.Evaluate(turn);
+            if (coef == 0)
+            {
+                return coef;
+            }
+            else
+            {
+                coef = coef / Math.Abs(coef);
+                return coef * state.GetTurnLeft();
+            }
         }
 
         /// <summary>
