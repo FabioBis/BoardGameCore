@@ -12,15 +12,15 @@ namespace BoardGameCore
 
         /// <summary>
         /// Constructor.
-        /// This constructor builds a new strategy based on the given AI turn.
+        /// This constructor builds a new strategy based on the given AI turn
+        /// and the depth of the search tree.
         /// </summary>
-        /// <param name="turn">The AI turn: 
-        /// if <code>turn</code> = 1 the IA is the first to play,
+        /// <param name="turn">The AI turn: if <code>turn</code> = 1 the IA is the first to play,
         /// if <code>turn</code> = 2 the AI is the second to play, otherwise
         /// an Argument exception is raised.</param>
-        public Connect4AlphaBetaLimitedStrategy(int turn)
+        public Connect4AlphaBetaLimitedStrategy(int turn, int depth)
         {
-            depth = 13;
+            this.depth = depth;
             strategyBoardState = new Connect4Core();
             realBoardState = new Connect4Core();
             if (turn == 1)
@@ -46,16 +46,16 @@ namespace BoardGameCore
 
         /// <summary>
         /// Constructor.
-        /// This constructor builds a new strategy based on the given AI turn
-        /// and the depth of the search tree.
+        /// This constructor builds a new strategy based on the given AI turn.
         /// </summary>
-        /// <param name="turn">The AI turn: if <code>turn</code> = 1 the IA is the first to play,
+        /// <param name="turn">The AI turn: 
+        /// if <code>turn</code> = 1 the IA is the first to play,
         /// if <code>turn</code> = 2 the AI is the second to play, otherwise
         /// an Argument exception is raised.</param>
-        public Connect4AlphaBetaLimitedStrategy(int turn, int depth)
-            : base(turn)
+        public Connect4AlphaBetaLimitedStrategy(int turn)
+            : this(turn, 10)
         {
-            this.depth = depth;
+            ;
         }
 
         /// <summary>
