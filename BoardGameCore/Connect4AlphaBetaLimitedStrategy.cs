@@ -159,7 +159,7 @@ namespace BoardGameCore
                 // Base: max depth reached.
                 nodeValue = EvaluateState(strategyBoardState.GetBoard(), aiTurn);
             }
-            else if (strategyBoardState.GetBoard().Evaluate(aiTurn) >= 0)
+            else
             {
                 foreach (int column in strategyBoardState.GetFreeColumns().ToList())
                 {
@@ -186,13 +186,6 @@ namespace BoardGameCore
                     }
                     strategyBoardState.UndoLastMove();
                 }
-            }
-            else
-            {
-                // Cut: the opponent will win in one move. Here we assume that the
-                // opponent is an optimal player, so the tree is pruned  to allow
-                // a more depth search.
-                nodeValue = EvaluateState(strategyBoardState.GetBoard(), aiTurn);
             }
             ((MinMaxDecision)node.LastMove).SetValue(nodeValue);
             depth++;
