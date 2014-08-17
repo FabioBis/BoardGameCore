@@ -13,11 +13,11 @@ namespace BoardGameCore
         /// <summary>
         /// Constructor.
         /// This constructor builds a new strategy based on the given AI turn.
+        /// </summary>
+        /// <param name="turn">The AI turn: 
         /// if <code>turn</code> = 1 the IA is the first to play,
         /// if <code>turn</code> = 2 the AI is the second to play, otherwise
-        /// an Argument exception is raised..
-        /// </summary>
-        /// <param name="turn">The AI turn.</param>
+        /// an Argument exception is raised.</param>
         public Connect4AlphaBetaLimitedStrategy(int turn)
         {
             depth = 13;
@@ -42,6 +42,20 @@ namespace BoardGameCore
             {
                 throw new ArgumentException();
             }
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// This constructor builds a new strategy based on the given AI turn
+        /// and the depth of the search tree.
+        /// </summary>
+        /// <param name="turn">The AI turn: if <code>turn</code> = 1 the IA is the first to play,
+        /// if <code>turn</code> = 2 the AI is the second to play, otherwise
+        /// an Argument exception is raised.</param>
+        public Connect4AlphaBetaLimitedStrategy(int turn, int depth)
+            : base(turn)
+        {
+            this.depth = depth;
         }
 
         /// <summary>
