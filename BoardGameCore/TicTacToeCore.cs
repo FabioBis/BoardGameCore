@@ -37,6 +37,14 @@ namespace BoardGameCore
         // The player turn (-1 or 1).
         private int turn;
 
+        // The current move number.
+        private int moves;
+
+        // The array of game moves.
+        // At even indexes are stored first player moves, at odd indexes are
+        // stored the second player moves, both in chronological order.
+        private int[] movesDone;
+
         /// <summary>
         /// Default constructor. Initialise the game board (all square to 0),
         /// the first player turn and the turn left (the maximum turn for this game).
@@ -45,6 +53,46 @@ namespace BoardGameCore
         {
             board = new TicTacToeBoard();
             turn = -1;
+            moves = 0;
+            movesDone = new int[9];
+            for (int i = 0; i < 9; i++)
+            {
+                movesDone[i] = -1;
+            }
+        }
+
+        public TicTacToeCore(TicTacToeBoard boardIn)
+        {
+            board = new TicTacToeBoard(boardIn);
+            turn = -1;
+            moves = 0;
+            movesDone = new int[9];
+            for (int i = 0; i < 9; i++)
+            {
+                movesDone[i] = -1;
+            }
+        }
+
+        /// <summary>
+        /// Copy constructor.
+        /// </summary>
+        public TicTacToeCore(TicTacToeCore src)
+        {
+            moves = src.moves;
+            movesDone = new int[9];
+            for (int i = 0; i < 9; i++)
+            {
+                if (i < src.movesDone.Length)
+                {
+                    movesDone[i] = src.movesDone[i];
+                }
+                else
+                {
+                    movesDone[i] = -1;
+                }
+                board = new TicTacToeBoard(src.board);
+                turn = src.turn;
+            }
         }
 
         /// <summary>
@@ -82,6 +130,8 @@ namespace BoardGameCore
             else
             {
                 board.Move(square, turn);
+                movesDone[moves] = square;
+                moves++;
                 turn *= -1;
                 return true;
             }
@@ -117,7 +167,7 @@ namespace BoardGameCore
         /// <summary>
         /// Returns <code>true</code> if the game is over.
         /// </summary>
-        public bool End()
+        internal bool GameOver()
         {
             if (board.GetTurnLeft() <= 0)
             {
@@ -126,5 +176,24 @@ namespace BoardGameCore
             return board.Ended();
         }
 
+        /// <summary>
+        /// This method perform a roll-back to the board state before
+        /// the last move done. Each call go back of one move at time.
+        /// </summary>
+        internal void UndoLastMove()
+        {
+            if (moves > 0 && moves <= 9)
+            {
+                int square = movesDone[moves - 1];
+                board.UndoMove(square);
+                turn *= -1;
+                moves--;
+                movesDone[moves] = -1;
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
     }
 }

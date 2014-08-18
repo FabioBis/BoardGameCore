@@ -195,5 +195,26 @@ namespace BoardGameCore
             CheckForWinner();
             return gameOver;
         }
+
+        /// <summary>
+        /// This method perform a roll-back to the board state before
+        /// the last move done. Each call roll back of one move at time.
+        /// </summary>
+        /// <param name="column">The square index of the move.</param>
+        internal void UndoMove(int square)
+        {
+            if (turnLeft == 42)
+            {
+                // The board is empty, nothing to be done.
+                return;
+            }
+            else
+            {
+                gameOver = false;
+                board[square] = 0;
+                freeSquare.Add(square);
+                turnLeft += 1;
+            }
+        }
     }
 }

@@ -249,7 +249,7 @@ namespace BoardGameCore
 
         /// <summary>
         /// This method perform a roll-back to the board state before
-        /// the last move done. Each call go back of one move at time.
+        /// the last move done. Each call roll back of one move at time.
         /// </summary>
         /// <param name="column">The column index of the move.</param>
         public void UndoMove(int column)

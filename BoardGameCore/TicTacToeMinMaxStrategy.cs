@@ -33,23 +33,14 @@ namespace BoardGameCore
     public class TicTacToeMinMaxStrategy : BoardGameStrategy
     {
         // The decision tree for the strategy.
-        private DecisionTree<TicTacToeBoard> _decisionTree;
+        protected DecisionTree decisionTree;
+
+        protected TicTacToeCore strategyBoardState;
 
         // Integer value representing the player order:
         // if iaTurn = -1 the IA is the first to play, second to play otherwise.
         private int aiTurn;
 
-        public DecisionTree<TicTacToeBoard> decisionTree
-        {
-            get
-            {
-                return _decisionTree;
-            }
-            set
-            {
-                _decisionTree = value;
-            }
-        }
 
         /// <summary>
         /// Constructor.
@@ -60,7 +51,8 @@ namespace BoardGameCore
         /// <param name="decision">The decision that has produced the board state.</param>
         public TicTacToeMinMaxStrategy(TicTacToeBoard boardState, MinMaxDecision decision)
         {
-            _decisionTree = new DecisionTree<TicTacToeBoard>(boardState, decision);
+            strategyBoardState = new TicTacToeCore(boardState);
+            decisionTree = new DecisionTree(decision);
             if (boardState.IsEmpty())
             {
                 aiTurn = -1;
@@ -69,7 +61,7 @@ namespace BoardGameCore
             {
                 aiTurn = 1;
             }
-            DecisionTreeNode<TicTacToeBoard> rootNode = _decisionTree.GetRoot();
+            DecisionTreeNode rootNode = decisionTree.GetRoot();
             populateTree(rootNode, aiTurn);
         }
 
@@ -82,25 +74,22 @@ namespace BoardGameCore
         public TicTacToeMinMaxStrategy(int turn)
         {
             aiTurn = turn;
+            strategyBoardState = new TicTacToeCore();
             if (aiTurn == -1)
             {
                 // The AI is the first to play.
-                _decisionTree = new DecisionTree<TicTacToeBoard>(
-                    new TicTacToeBoard(),
-                    new MinMaxDecision(null, MiniMax.Max)
-                );
+                decisionTree = new DecisionTree(
+                    new MinMaxDecision(null, MiniMax.Max));
                 // Populate the tree.
-                buildNode(_decisionTree.GetRoot(), -1, MiniMax.Max);
+                buildNode(decisionTree.GetRoot(), -1, MiniMax.Max);
             }
             else
             {
                 // The AI is the second to play.
-                _decisionTree = new DecisionTree<TicTacToeBoard>(
-                    new TicTacToeBoard(),
-                    new MinMaxDecision(null, MiniMax.Min)
-                );
+                decisionTree = new DecisionTree(
+                    new MinMaxDecision(null, MiniMax.Min));
                 // Populate the tree.
-                buildNode(_decisionTree.GetRoot(), -1, MiniMax.Min);
+                buildNode(decisionTree.GetRoot(), -1, MiniMax.Min);
             }
         }
 
@@ -110,7 +99,7 @@ namespace BoardGameCore
         /// <param name="node">The root node.</param>
         /// <param name="turn">The IA turn.</param>
         private void populateTree(
-            DecisionTreeNode<TicTacToeBoard> root,
+            DecisionTreeNode root,
             int turn)
         {
             buildNode(root, turn, MiniMax.Max);
@@ -130,8 +119,7 @@ namespace BoardGameCore
                 return MiniMax.Max;
             }
         }
-
-
+        
         /// <summary>
         /// This method build the given node, and recursively all the
         /// children using depth-first traversal with pre-order visit.
@@ -140,29 +128,27 @@ namespace BoardGameCore
         /// <param name="turn">The current turn.</param>
         /// <param name="type">The MiniMax type of this node.</param>
         private void buildNode(
-            DecisionTreeNode<TicTacToeBoard> node,
+            DecisionTreeNode node,
             int turn,
             MiniMax type)
         {
-            TicTacToeBoard nodeBoard = new TicTacToeBoard(node.Value);
-            if (nodeBoard.IsFull())
+            if (strategyBoardState.GameOver())
             {
                 // Base: leaf node, evaluate the MiniMax value.
-                ((MinMaxDecision)node.LastMove).SetValue(Fitness(nodeBoard));
+                ((MinMaxDecision)node.LastMove).SetValue(Fitness(strategyBoardState.GetBoard()));
                 return;
             }
             // Recursive: build the children.
             MiniMax childrenType = swapType(type);
-            foreach (int square in nodeBoard.freeSquare.ToList())
+            foreach (int square in strategyBoardState.GetBoard().freeSquare.ToList())
             {
-                TicTacToeBoard childBoard = new TicTacToeBoard(nodeBoard);
-                childBoard.Move(square, turn);
+                strategyBoardState.Move(square);
                 MinMaxDecision decision = new MinMaxDecision(square, childrenType);
-                DecisionTreeNode<TicTacToeBoard> childNode =
-                    new DecisionTreeNode<TicTacToeBoard>(childBoard, decision);
+                DecisionTreeNode childNode =
+                    new DecisionTreeNode(decision);
                 node.AddChild(childNode);
                 int next = turn * -1;
-                if (childBoard.CheckForWinner() == 0)
+                if (strategyBoardState.CheckForWinner() == 0)
                 {
                     // Recursive: build the child.
                     buildNode(childNode, next, childrenType);
@@ -171,15 +157,15 @@ namespace BoardGameCore
                 {
                     // Base: leaf node, evaluate the MiniMax value.
                     ((MinMaxDecision)childNode.LastMove).SetValue(Fitness(
-                        childBoard));
+                        strategyBoardState.GetBoard()));
                 }
+                strategyBoardState.UndoLastMove();
             }
-            // Select the MiniMax value for non-leaf node.
             int nodeValue = 0;
             if (type.Equals(MiniMax.Max))
             {
                 nodeValue = Int32.MinValue;
-                foreach (DecisionTreeNode<TicTacToeBoard> child in node.Children.ToList())
+                foreach (DecisionTreeNode child in node.Children.ToList())
                 {
                     int currentValue = ((MinMaxDecision)child.LastMove).GetValue();
                     if (nodeValue < currentValue)
@@ -191,7 +177,7 @@ namespace BoardGameCore
             else
             {
                 nodeValue = Int32.MaxValue;
-                foreach (DecisionTreeNode<TicTacToeBoard> child in node.Children.ToList())
+                foreach (DecisionTreeNode child in node.Children.ToList())
                 {
                     int currentValue = ((MinMaxDecision)child.LastMove).GetValue();
                     if (nodeValue > currentValue)
@@ -233,7 +219,7 @@ namespace BoardGameCore
         }
 
         private int makeDecisionRec(
-            DecisionTreeNode<TicTacToeBoard> node)
+            DecisionTreeNode node)
         {
             if (node.GetBranches() == 0)
             {
@@ -251,7 +237,7 @@ namespace BoardGameCore
                 int index = -1;
                 int minMax = Int32.MinValue;
                 int decision = -1;
-                foreach (DecisionTreeNode<TicTacToeBoard> child in node.Children)
+                foreach (DecisionTreeNode child in node.Children)
                 {
                     int tmpMinMax = ((MinMaxDecision)child.LastMove).GetValue();
                     if (tmpMinMax > minMax)
