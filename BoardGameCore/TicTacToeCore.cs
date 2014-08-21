@@ -167,7 +167,7 @@ namespace BoardGameCore
         /// <summary>
         /// Returns <code>true</code> if the game is over.
         /// </summary>
-        internal bool GameOver()
+        public bool GameOver()
         {
             if (board.GetTurnLeft() <= 0)
             {
