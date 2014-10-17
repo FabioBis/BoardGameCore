@@ -247,12 +247,12 @@ namespace BoardGameCore
                 {
                     if (row == 2)
                     {
-                        // Do not loose.
+                        // Win.
                         result = selectFreeSquare(i);
                     }
                     else if (row == -2)
                     {
-                        // Win.
+                        // Do not loose.
                         result = selectFreeSquare(i);
                     }
                     i++;
@@ -264,12 +264,12 @@ namespace BoardGameCore
                 {
                     if (row == -2)
                     {
-                        // Do not loose.
+                        // Win.
                         result = selectFreeSquare(i);
                     }
                     else if (row == 2)
                     {
-                        // Win.
+                        // Do not loose.
                         result = selectFreeSquare(i);
                     }
                     i++;
